@@ -31,6 +31,7 @@ Getter and setter methods for the ```row``` and ```column```
 *Returns a string representation of the candy
 */
 toString()
+```
  
 ### The ```Board```
 
