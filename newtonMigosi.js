@@ -34,6 +34,10 @@ class Candy {
         this.position = new Point(row, column);
     }
 
+    getPosition() {
+        return this.position;
+    }
+
     toString() {
         return `${this.color} candy at ${this.position}`;
     }
@@ -54,24 +58,27 @@ class SquareMatrix {
     }
 
     toString() {
-        return `${this.boardSize} by ${this.boardSize} SquareMatrix`;
+        return `${this.dimension} by ${this.dimension} SquareMatrix`;
     }
 
     getSlotAt(row, col) {
         if (this.isValidLication(row, col)) {
-            return this.matrix[row][col]
+            return this.matrix[row][col];
         } else {
             const err = new Error(`Slot r${row}, c${col} isn't valid slot in board ${this.toString()}`);
             throw err;
         }
     }
 
+    get slots() {
+        return [].concat(...this.matrix);
+    }
 
     isEmptyLocation(row, col) {
         return this.getSlotAt(row,col) == null;
     }
 
-    get boardSize() {
+    get dimension() {
         return this.size;
     }
 }
@@ -90,7 +97,7 @@ function main() {
 
     const board = new Board(5);
 
-    console.log(board.getSlotAt(4, 4));
+    console.log(board.slots);
 }
 
 main();
