@@ -25,6 +25,10 @@ class SquareMatrix {
         
         this.matrix = rows.fill(columns); 
     }
+
+    isValidLication(row, col) {
+        return (row >= 0 && row < this.size) && (col >= 0 && col < this.size);
+    }
 }
 
 class Board extends SquareMatrix {
@@ -41,7 +45,7 @@ function main() {
 
     const board = new Board(5);
     
-    console.log(board);
+    console.log(board.isValidLication(-1,-1));
 }
 
 main();
