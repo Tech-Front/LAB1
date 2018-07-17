@@ -16,11 +16,32 @@ class Candy {
     }
 }
 
+class SquareMatrix {
+    constructor(side_length, val = null) {
+        this.size = side_length;
+
+        const rows = new Array(side_length);
+        const columns = new Array(side_length).fill(val);
+        
+        this.matrix = rows.fill(columns); 
+    }
+}
+
+class Board extends SquareMatrix {
+    constructor(size) {
+        super(size);
+    }
+}
+
 function main() {
-    candy = new Candy(1, 'red');
+    const candy = new Candy(1, 'red');
     candy.setPosition(0, 0);
-    
+
     console.log(candy.toString());
+
+    const board = new Board(5);
+    
+    console.log(board);
 }
 
 main();
