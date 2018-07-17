@@ -1,3 +1,18 @@
+class Point{
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    get horizontal() {
+        return this.x;
+    }
+
+    get vertical() {
+        return this.y;
+    }
+}
+
 class Candy {
     constructor(id, color) {
         this.id = id;
@@ -6,13 +21,17 @@ class Candy {
         this.column = null;
     }
 
-    setPosition(row, column) {
-        this.row = row;
-        this.column = column;
+    set position(point) {
+        this.row = point.horizontal;
+        this.column = point.vertical;
     }
 
     get position() {
         return `row: ${this.row}, col: ${this.column}`;
+    }
+
+    setPosition(row, column) {
+        this.position = new Point(row, column);
     }
 
     toString() {
@@ -65,7 +84,7 @@ class Board extends SquareMatrix {
 
 function main() {
     const candy = new Candy(1, 'red');
-    candy.setPosition(0, 0);
+    candy.position = new Point(0, 0);
 
     console.log(candy.toString());
 
