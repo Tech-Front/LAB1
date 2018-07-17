@@ -22,12 +22,34 @@ class SquareMatrix {
 
         const rows = new Array(side_length);
         const columns = new Array(side_length).fill(val);
-        
-        this.matrix = rows.fill(columns); 
+
+        this.matrix = rows.fill(columns);
     }
 
     isValidLication(row, col) {
         return (row >= 0 && row < this.size) && (col >= 0 && col < this.size);
+    }
+
+    toString() {
+        return `${this.boardSize} by ${this.boardSize} SquareMatrix`;
+    }
+
+    getSlotAt(row, col) {
+        if (this.isValidLication(row, col)) {
+            return this.matrix[row][col]
+        } else {
+            const err = new Error(`Slot r${row}, c${col} isn't valid slot in board ${this.toString()}`);
+            throw err;
+        }
+    }
+
+
+    isEmptyLocation(row, col) {
+        return this.getSlotAt(row,col) == null;
+    }
+
+    get boardSize() {
+        return this.size;
     }
 }
 
@@ -44,8 +66,8 @@ function main() {
     console.log(candy.toString());
 
     const board = new Board(5);
-    
-    console.log(board.isValidLication(-1,-1));
+
+    console.log(board.getSlotAt(4, 4));
 }
 
 main();
