@@ -11,8 +11,12 @@ class Candy {
         this.column = column;
     }
 
+    get position() {
+        return `row: ${this.row}, col: ${this.column}`;
+    }
+
     toString() {
-        return `${this.color} candy at r${this.row}, c${this.column}`;
+        return `${this.color} candy at ${this.position}`;
     }
 }
 
