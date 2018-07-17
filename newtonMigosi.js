@@ -16,7 +16,11 @@ class Candy {
     }
 }
 
-candy = new Candy(1, 'red');
-candy.setPosition(0, 0);
+function main() {
+    candy = new Candy(1, 'red');
+    candy.setPosition(0, 0);
+    
+    console.log(candy.toString());
+}
 
-console.log(candy.toString());
+main();
