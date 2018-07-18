@@ -1,15 +1,15 @@
 class Cell {
-    constructor(horizontal, vertical) {
-        this.horizontal = horizontal;
-        this.vertical = vertical;
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
     }
 
     get row() {
-        return this.horizontal;
+        return this.x;
     }
 
     get column() {
-        return this.vertical;
+        return this.y;
     }
 
     toString() {
@@ -161,7 +161,9 @@ function testGrid(rows, cols) {
 function test(max_rows, max_cols) {
     for (let rows= 1; rows < max_rows; rows++) {
         for (let columns = 1; columns <max_cols; columns++) {
+            console.log('\n');
             testGrid(rows, columns);
+            console.log('\n');
         }
     }
 }
