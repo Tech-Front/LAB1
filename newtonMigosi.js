@@ -1,15 +1,15 @@
 class Cell {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    constructor(row_num, col_num) {
+        this.row_num = row_num;
+        this.col_num = col_num;
     }
 
     get row() {
-        return this.x;
+        return this.row_num;
     }
 
     get column() {
-        return this.y;
+        return this.col_num;
     }
 
     toString() {
@@ -56,10 +56,10 @@ class Candy {
 }
 
 class Grid {
-    constructor(num_rows, num_columns) {
+    constructor(num_rows, num_columns, val = null) {
         this.rows = num_rows;
         this.columns = num_columns;
-        this.slots = new Array(num_rows * num_columns).fill(null);
+        this.slots = new Array(num_rows * num_columns).fill(val);
     }
     
     static flatIndex(num_columns, cell) {
@@ -97,7 +97,7 @@ class Grid {
         }
     }
 
-    add(obj, row, col) {
+    addToGrid(obj, row, col) {
         this.fillCell(new Cell(row, col), obj);
     }
 
@@ -124,8 +124,42 @@ class Grid {
 
 class Board extends Grid {
     constructor(size) {
-        super(size);
+        super(size, size);
+        this.size = size;
     }
+
+    isValidLocation(row, col) {
+        return super.isValidCell(new Cell(row, col));
+    }
+
+    isEmptyLocation(row, cell) {
+        return super.isEmptyCell(new Cell(row, col));
+    }
+
+    get boardSize() {
+        return this.size;
+    }
+
+    getBoardSize() {
+        return this.boardSize;
+    }
+
+    getCandyAt(row, col) {
+        return super.getCell(new Cell(row, col));
+    }
+
+    getLocationOf(candy) {
+        const location =  super.find((candy_on_board) => { return candy_on_board.id === candy.id; })
+        const onBoard = (cell) => { return cell.row > -1 && cell.column > -1; };
+
+        return onBoard(location) ? location : null;
+    }
+
+    getAllCandies() {
+        return this.slots;
+    }
+
+    addToGrid(candy, row, ) {}
 }
 
 const pickRandom = (arr) => { return arr[Math.floor(Math.random()*arr.length)]; };
@@ -141,7 +175,7 @@ function testGrid(rows, cols) {
         let c = new Candy(count, pickRandom(COLORS));
         c.position = Grid.matrixIndex(g.columns, count);
         g.fillCell(c.position, c);
-        !g.isEmptyCell(c.position) ? console.log(`Added ${c.fullInfo}`) : console.error(`Couldn't add ${c.fullInfo}`);
+        !g.isEmptyCell(c.position) ? console.log(`Added ${c.fullInfo}`) : console.error(`Couldn't addToGrid ${c.fullInfo}`);
         count++;
     }
     
