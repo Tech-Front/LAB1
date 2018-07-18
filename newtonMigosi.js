@@ -97,10 +97,6 @@ class Grid {
         }
     }
 
-    addToGrid(obj, row, col) {
-        this.fillCell(new Cell(row, col), obj);
-    }
-
     find(rule) {
         return Grid.matrixIndex(this.columns, this.slots.findIndex(rule));
     }
@@ -149,7 +145,7 @@ class Board extends Grid {
     }
 
     getLocationOf(candy) {
-        const location =  super.find((candy_on_board) => { return candy_on_board.id === candy.id; })
+        const location = super.find((candy_on_board) => { return candy_on_board.id === candy.id; })
         const onBoard = (cell) => { return cell.row > -1 && cell.column > -1; };
 
         return onBoard(location) ? location : null;
@@ -158,8 +154,6 @@ class Board extends Grid {
     getAllCandies() {
         return this.slots;
     }
-
-    addToGrid(candy, row, ) {}
 }
 
 const pickRandom = (arr) => { return arr[Math.floor(Math.random()*arr.length)]; };
