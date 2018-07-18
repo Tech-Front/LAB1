@@ -1,15 +1,23 @@
-class Point{
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+class Cell {
+    constructor(horizontal, vertical) {
+        this.horizontal = horizontal;
+        this.vertical = vertical;
     }
 
-    get horizontal() {
-        return this.x;
+    get row() {
+        return this.horizontal;
     }
 
-    get vertical() {
-        return this.y;
+    get column() {
+        return this.vertical;
+    }
+
+    toString() {
+        return `Cell{row: ${this.row}, column: ${this.column}}`;
+    }
+    
+    toArray() {
+        return [this.row, this.column];
     }
 }
 
@@ -21,17 +29,17 @@ class Candy {
         this.column = null;
     }
 
-    set position(point) {
-        this.row = point.horizontal;
-        this.column = point.vertical;
+    set position(cell) {
+        this.row = cell.row;
+        this.column = cell.column;
     }
 
     get position() {
-        return `row: ${this.row}, col: ${this.column}`;
+        return new Cell(this.row,this.column);
     }
 
     setPosition(row, column) {
-        this.position = new Point(row, column);
+        this.position = new Cell(row, column);
     }
 
     getPosition() {
@@ -39,65 +47,123 @@ class Candy {
     }
 
     toString() {
-        return `${this.color} candy at ${this.position}`;
+        return `${this.color} candy`;    
+    }
+    
+    get fullInfo() {
+        return `${this.color} candy at ${this.position.toString()}`;
     }
 }
 
-class SquareMatrix {
-    constructor(side_length, val = null) {
-        this.size = side_length;
-
-        const rows = new Array(side_length);
-        const columns = new Array(side_length).fill(val);
-
-        this.matrix = rows.fill(columns);
+class Grid {
+    constructor(num_rows, num_columns) {
+        this.rows = num_rows;
+        this.columns = num_columns;
+        this.slots = new Array(num_rows * num_columns).fill(null);
+    }
+    
+    static flatIndex(num_columns, cell) {
+        return cell.row * num_columns + cell.column;
     }
 
-    isValidLication(row, col) {
-        return (row >= 0 && row < this.size) && (col >= 0 && col < this.size);
+    static matrixIndex(num_columns, index) {
+        return new Cell(Math.floor(index / num_columns) , index % num_columns);
     }
 
-    toString() {
-        return `${this.dimension} by ${this.dimension} SquareMatrix`;
+    isValidCell(cell) {
+        return Grid.flatIndex(this.columns, cell) >= 0 && Grid.flatIndex(this.columns, cell) < this.size;
     }
 
-    getSlotAt(row, col) {
-        if (this.isValidLication(row, col)) {
-            return this.matrix[row][col];
+    getCell(cell) {
+        if (this.isValidCell(cell)) {
+            return this.slots[Grid.flatIndex(this.columns, cell)];
         } else {
-            const err = new Error(`Slot r${row}, c${col} isn't valid slot in board ${this.toString()}`);
+            const err = new Error(`${cell.toString()} isn't valid cell in ${this.toString()}`);
             throw err;
         }
     }
 
-    get slots() {
-        return [].concat(...this.matrix);
+    isEmptyCell(cell) {
+        return this.getCell(cell) == null;
     }
 
-    isEmptyLocation(row, col) {
-        return this.getSlotAt(row,col) == null;
+    fillCell(cell, obj) {
+        if (this.isValidCell(cell)) {
+            this.slots[Grid.flatIndex(this.columns, cell)] = obj;
+            return this.getCell(cell);
+        } else {
+            const err = new Error(`${cell.toString()} isn't valid cell in ${this.toString()}`);
+            throw err;
+        }
     }
 
-    get dimension() {
-        return this.size;
+    add(obj, row, col) {
+        this.fillCell(new Cell(row, col), obj);
+    }
+
+    find(rule) {
+        return Grid.matrixIndex(this.columns, this.slots.findIndex(rule));
+    }
+
+    get grid() {
+        let grid = `${this.toString()}\n`;
+        for(let row = 0; row < this.rows; row++){
+            grid += `${[...this.slots.slice(row * this.columns, row * this.columns + this.columns)]}\n`;
+        }
+        return grid;
+    }
+
+    get size() {
+        return this.rows * this.columns;
+    }
+
+    toString() {
+        return `${this.rows} by ${this.columns} Grid`;
     }
 }
 
-class Board extends SquareMatrix {
+class Board extends Grid {
     constructor(size) {
         super(size);
     }
 }
 
-function main() {
-    const candy = new Candy(1, 'red');
-    candy.position = new Point(0, 0);
+const pickRandom = (arr) => { return arr[Math.floor(Math.random()*arr.length)]; };
 
-    console.log(candy.toString());
+function testGrid(rows, cols) {
+    const COLORS = ['red', 'green', 'blue', 'yellow'];
+    const inGrid = (cell) => { return cell.row > -1 && cell.column > -1; };
+    
+    const g = new Grid(rows, cols);
+    
+    let count = 0;
+    while (count < g.size) {
+        let c = new Candy(count, pickRandom(COLORS));
+        c.position = Grid.matrixIndex(g.columns, count);
+        g.fillCell(c.position, c);
+        !g.isEmptyCell(c.position) ? console.log(`Added ${c.fullInfo}`) : console.error(`Couldn't add ${c.fullInfo}`);
+        count++;
+    }
+    
+    console.log('\n', g.grid);
 
-    const board = new Board(5);
+    [...COLORS, 'pink'].forEach(color => {
+        let location = g.find(candy => { return candy.color == color; });
+        if (inGrid(location)) {
+            console.log(`Found ${g.getCell(location).fullInfo}`);
+        } else {
+            console.error(`Didn't find ${color} candy`);
+        }
+    });
 
-    console.log(board.slots);
 }
 
-main();
+function test(max_rows, max_cols) {
+    for (let rows= 1; rows < max_rows; rows++) {
+        for (let columns = 1; columns <max_cols; columns++) {
+            testGrid(rows, columns);
+        }
+    }
+}
+
+test(10, 10);
