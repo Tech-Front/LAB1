@@ -41,7 +41,7 @@ class Candy{
     }
 
     /**
-     * @returns String representation of the Candy
+     * @returns {String} representation of the Candy
      */
     toString(){
         return ("UniqueID: "+this.uniqueID+" Color: "+this.color+
