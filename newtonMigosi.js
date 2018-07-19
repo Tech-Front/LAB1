@@ -51,7 +51,7 @@ class Candy {
     }
     
     get fullInfo() {
-        return `${this.color} candy at ${this.position.toString()}`;
+        return `#${this.id} ${this.color} candy at ${this.position.toString()}`;
     }
 }
 
@@ -102,7 +102,7 @@ class Grid {
     }
 
     get grid() {
-        let grid = `${this.toString()}\n`;
+        let grid = '';
         for(let row = 0; row < this.rows; row++){
             grid += `${[...this.slots.slice(row * this.columns, row * this.columns + this.columns)]}\n`;
         }
@@ -118,10 +118,23 @@ class Grid {
     }
 }
 
+// CustomEvent is a temporary class for testing code
+class CustomEvent{
+    constructor(name, detail) {
+        this.name = name;
+        this.details = detail.detail;
+    }
+
+    static dispatchEvent(e) {
+        console.log(`${e.name} event dispatched ${e.details}`);
+    }
+}
 class Board extends Grid {
     constructor(size) {
         super(size, size);
-        this.size = size;
+        this.candies = 0;
+        this.colors = ["red", "yellow", "green", "orange", "blue", "purple"];
+        this.score = 0;
     }
 
     isValidLocation(row, col) {
@@ -132,8 +145,12 @@ class Board extends Grid {
         return super.isEmptyCell(new Cell(row, col));
     }
 
+    get valid_colors() {
+        return this.colors;
+    }
+
     get boardSize() {
-        return this.size;
+        return this.rows;
     }
 
     getBoardSize() {
@@ -145,7 +162,7 @@ class Board extends Grid {
     }
 
     getLocationOf(candy) {
-        const location = super.find((candy_on_board) => { return candy_on_board.id === candy.id; })
+        const location = super.find((candy_on_board) => { return candy_on_board ? candy_on_board.id === candy.id : null; })
         const onBoard = (cell) => { return cell.row > -1 && cell.column > -1; };
 
         return onBoard(location) ? location : null;
@@ -153,6 +170,173 @@ class Board extends Grid {
 
     getAllCandies() {
         return this.slots;
+    }
+
+    isEmptyAndValid(cell) {
+        return super.isValidCell(cell) && super.isEmptyCell(cell);
+    }
+    
+    updateAddCandy(candy, cell) {
+        candy.position = cell;    
+        super.fillCell(cell, candy);
+    }
+
+    add(candy, row, col, spawnRow=null, spawnCol=null) {
+        const location = new Cell(row, col);
+        const valid = this.isEmptyAndValid(location) && !this.getLocationOf(candy) ;
+        if (valid) {
+            this.updateAddCandy(candy, location);
+            const event = new CustomEvent('add', {detail: {
+                                        candy: candy, 
+                                        row: row, 
+                                        col: col, 
+                                        spawnRow: spawnRow, 
+                                        spawnCol: spawnCol }
+            });
+
+            CustomEvent.dispatchEvent(event);
+        }
+    }
+
+    moveTo(candy, toRow, toCol) {
+        const origin = candy.position;
+        const destination = new Cell(toRow, toCol);
+        const valid = !!this.getLocationOf(candy) && this.isEmptyAndValid(destination);
+        if (valid) {
+            this.updateAddCandy(candy, destination);
+            const event = new CustomEvent('move', {
+                detail: {
+                    candy: candy,
+                    toRow: candy.position.row,
+                    fromRow: origin.row,
+                    toCol: candy.position.column,
+                    fromCol: origin.column
+                }
+            });
+
+            CustomEvent.dispatchEvent(event);
+        } else {
+            console.error(!!this.getLocationOf(candy), this.isEmptyAndValid(destination));
+            throw Error(`invalid move operation`);
+        }
+    }
+
+    remove(candy) {
+        const valid = !!this.getLocationOf(candy);
+        if (valid) {
+            super.fillCell(candy.position, null);
+            const event = new CustomEvent('remove', {
+                detail: {
+                    candy: candy,
+                    fromRow: candy.row,
+                    fromCol: candy.column
+                }
+            });
+
+            CustomEvent.dispatchEvent(event);
+        }
+    }
+
+    removeAt(row, col) {
+        const location = new Cell(row, col);
+        const valid = super.isValidCell(location);
+        if (valid){
+            const candy = super.getCell(location);
+            super.fillCell(candy.position, null);
+            const event = new CustomEvent('remove', {
+                detail: {
+                    candy: candy,
+                    fromRow: candy.row,
+                    fromCol: candy.column
+                }
+            });
+
+            CustomEvent.dispatchEvent(event);
+        }
+
+    }
+
+    clear() {
+        this.slots = new Array(this.size*this.size).fill(null);
+    }
+
+    addCandy(color, row, col, spawnRow=null, spawnCol=null) {
+        this.add(new Candy(this.candies, color) ,row, col, spawnRow, spawnRow);
+        this.candies++;
+    }
+
+    addRandomCandy(row, col, spawnRow, spawnCol) {
+        const pickRandom = (arr) => { return arr[Math.floor(Math.random() * arr.length)]; };
+        this.addCandy(pickRandom(this.colors), row, col, spawnRow, spawnCol);
+    }
+
+    addRandomCandyCell(cell) {
+        this.addRandomCandy(cell.row, cell.column);
+    }
+
+    getCandyInDirection(fromCandy, direction) {
+        switch(direction) {
+            case 'up':
+                return this.getCandyAt(fromCandy.position.row - 1, fromCandy.position.column);
+            case 'down':
+                return this.getCandyAt(fromCandy.position.row + 1, fromCandy.position.column);
+            case 'left':
+                return this.getCandyAt(fromCandy.position.row, fromCandy.position.column - 1);
+            case 'right':
+                return this.getCandyAt(fromCandy.position.row, fromCandy.position.column + 1);
+            default:
+                throw Error(`Expected up, down, left, right; got ${direction}`);
+        }
+    }
+
+    moveToCell(candy, cell) {
+        this.moveTo(candy, cell.row, cell.column);
+    }
+
+    flipCandies(candy1, candy2) {
+        const [pos1initial, pos2initial] = [candy1.position, candy2.position];
+        this.moveToCell(candy1, pos2initial);
+        this.moveToCell(candy2, pos1initial);
+    }
+
+    get current_score() {
+        return this.score;
+    }
+
+    set current_score(new_score) {
+        this.score = new_score;
+    }
+
+    resetScore() {
+        const event = new CustomEvent('scoreUpdate', { detail: {
+            prev_score: this.current_score,
+            new_score: 0
+        }});
+        this.current_score = 0;
+        CustomEvent.dispatchEvent(event);
+
+    }
+
+    incrementScore(candy, row, col) {
+        const INC = 0;
+        const event = new CustomEvent('scoreUpdate', { detail: {
+            prev_score: this.current_score,
+            new_score: this.current_score + INC,
+            candy: candy,
+            row: row,
+            col: col
+        }});
+        this.current_score = this.current_score + INC;
+        CustomEvent.dispatchEvent(event);
+
+    }
+
+    getScore() {
+        return this.current_score;
+    }
+
+    toString() {
+        return this.grid;
     }
 }
 
@@ -186,7 +370,47 @@ function testGrid(rows, cols) {
 
 }
 
-function test(max_rows, max_cols) {
+function testBoard(size) {
+    const b = new Board(size);
+    const randomCell = (size) => { return [Math.floor(Math.random()*size), Math.floor(Math.random()*size)]; };
+    const directions = ['up', 'down', 'left', 'right'];
+
+    let count = 0;
+    while (count < b.boardSize * b.boardSize) {
+        b.addRandomCandyCell(Grid.matrixIndex(b.columns, count));
+        count++;
+    }
+
+    let c = b.getCandyAt(...randomCell(b.boardSize));
+    console.log(c.fullInfo);
+    
+    let d;
+    let found = false;
+    while (!found) {
+        try {
+            d = b.getCandyInDirection(c, pickRandom(directions));
+            found = true;
+        } catch (e) {
+            // console.error(e);
+            found = false;
+        }
+    }
+    console.log(d.fullInfo);
+    
+    console.log(`\nFlipping b and c:`);
+    console.log(b.toString());
+    b.flipCandies(c, d);
+    console.log(b.toString());
+
+    console.log(`\nRemoving c:`);
+    b.remove(c);
+    console.log(b.toString());
+
+    b.clear();
+    console.log(b.getAllCandies());
+}
+
+function testMultipleGrids(max_rows, max_cols) {
     for (let rows= 1; rows < max_rows; rows++) {
         for (let columns = 1; columns <max_cols; columns++) {
             console.log('\n');
@@ -196,4 +420,5 @@ function test(max_rows, max_cols) {
     }
 }
 
-test(10, 10);
+testBoard(5);
+// testMultipleGrids(10, 10);
