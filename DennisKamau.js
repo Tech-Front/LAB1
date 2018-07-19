@@ -1,19 +1,38 @@
 class Candy {
-    constructor(color,uniqueID,row,column){
-        this.uniqueID = uniqueID;
+    constructor(id, color){
+        this._uniqueID = uniqueID;
         this.row = null;
-        this.colunm = null;
-        this.colors = ["red", "yellow", "green", "orange", "blue", "purple"];
+        this.column = null;
+        this._color = ["red", "yellow", "green", "orange", "blue", "purple"];
 
     }
-
+    
     /**
     *Returns a string representation of the candy
     */
+   
     toString(){
-        return this.toString();
+        return `(${this.row}, ${this.column}, ${this.id}, ${this.color})`;
     }
+    get row (){
+        return this.row;
+    }
+    set column(val){
+        this.column = val;
+    }
+    get column (){
+        return this.column;
+    }
+    set row (val){
+        this.row = val;
+    }
+    
+}
 
+class Board extends Candy {
+    constructor(){
+        super();
+    }
     /**
 *Returns a boolean indication of whether the row and column identify a valid square on the board.
 */
