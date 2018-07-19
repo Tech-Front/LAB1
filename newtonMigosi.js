@@ -53,6 +53,12 @@ class Candy {
     get fullInfo() {
         return `#${this.id} ${this.color} candy at ${this.position.toString()}`;
     }
+
+    get clone() {
+        const candyClone = new Candy(this.id, this.color);
+        candyClone.position = this.position;
+        return candyClone;
+    }
 }
 
 class Grid {
@@ -101,12 +107,75 @@ class Grid {
         return Grid.matrixIndex(this.columns, this.slots.findIndex(rule));
     }
 
+    getRow(row_num) {
+        if (row_num < this.rows) {
+            return [...this.slots.slice(row_num * this.columns, row_num * this.columns + this.columns)];
+        } else {
+            const err = new Error(`Out of Index Error: ${row_num} not in range [0, ${this.rows})`);
+            throw err;
+        }
+    }
+    
+    get allRows() {
+        const allrows = new Array(this.rows).fill('*');
+        allrows.forEach((_, ind, arr) => { arr[ind] = this.getRow(ind); });
+        return allrows;
+    }
+    
     get grid() {
         let grid = '';
-        for(let row = 0; row < this.rows; row++){
-            grid += `${[...this.slots.slice(row * this.columns, row * this.columns + this.columns)]}\n`;
-        }
+        this.allRows.forEach((_, ind) => { grid += `${this.getRow(ind)}\n`; })        
         return grid;
+    }
+
+    getColumn(col_num) {
+        if (col_num < this.columns) {
+            return this.slots.filter((_, ind) => { return ind % this.columns === col_num; });
+        } else {
+            const err = new Error(`Out of Index Error: ${col_num} not in range [0, ${this.columns})`);
+            throw err;
+        }
+    }
+
+    get pretty_grid() {
+        const cell_width = this.slots.reduce((a, b) => { return Math.max(a.toString().length, b.toString().length); }) + 5;
+        const cell_height = 2;
+
+        let pretty_grid = '';
+        
+        const horizontal_border = '*'.repeat((cell_width + 2) * this.columns);
+        const row_separator = '-'.repeat(horizontal_border.length - 2);
+        const vertical_border = '|';
+        const newl = '\n';
+        const padding = ' ';
+
+        const centre = (str) => { 
+            const ws = (cell_width - str.length);
+            const [left, right] = [Math.ceil(ws / 2), Math.floor(ws / 2)]; 
+            return padding.repeat(left) + str + padding.repeat(right); 
+        };
+
+        const addBoarder = (str) => { return vertical_border + str + vertical_border; };
+
+        pretty_grid += horizontal_border + newl;
+
+        this.allRows.forEach((row, ind, arr) =>  {
+            pretty_grid += vertical_border;
+
+            row.forEach(val => {
+                pretty_grid +=  addBoarder(centre(val.toString()));
+            });
+
+            pretty_grid += vertical_border + newl;
+
+            if (ind < arr.length - 1) {
+                pretty_grid += row_separator + newl;
+            }
+        }
+        );
+
+        pretty_grid += horizontal_border + newl;
+        return pretty_grid;
     }
 
     get size() {
@@ -357,7 +426,7 @@ function testGrid(rows, cols) {
         count++;
     }
     
-    console.log('\n', g.grid);
+    console.log('\n', g.pretty_grid);
 
     [...COLORS, 'pink'].forEach(color => {
         let location = g.find(candy => { return candy.color == color; });
@@ -420,5 +489,6 @@ function testMultipleGrids(max_rows, max_cols) {
     }
 }
 
-testBoard(5);
+testGrid(4,5);
+// testBoard(5);
 // testMultipleGrids(10, 10);
