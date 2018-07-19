@@ -68,67 +68,68 @@ class Board{
 
 
 /* Returns a boolean indication of whether the board[row][column] is empty (Does not contain a candy.*/
-isEmptyLocation(row, col) {
-    var emptyLocation = function(row, col){
-        if(row< this.rowNumber, col < this.colNumbers){
-            return true;
-        }
-        else{
-            return false;
+    isEmptyLocation(row, col) {
+        var emptyLocation = function(row, col){
+            if(row< this.rowNumber, col < this.colNumbers){
+                return true;
+            }
+            else{
+                return false;
+            }
         }
     }
-}
 
 /*
 Returns the number of squares on each side of the board 
 */
-getBoardSize() {
-    var squareNumbers = function(rowMe, colMe){
-        for(row = 0; row < this.rowNumber; row++){
-            return rowMe;
-        }
-        for(col = 0; col < this.colNumber; col++){
+    getBoardSize() {
+        var squareNumbers = function(rowMe, colMe){
+            for(row = 0; row < this.rowNumber; row++){
+                return rowMe;
+            }
+            for(col = 0; col < this.colNumber; col++){
             return colMe;
+            }
         }
+    var totalSquares = (rowMe * colMe);
+    return totalSquares;
     }
-var totalSquares = (rowMe * colMe);
-return totalSquares;
-}
 
 /*Get's the candy at [row, column] or null if the square is empty.*/
-getCandyAt(row, col) {
-    var location = function(row, col){
-        if(row == this.rowInd && col == columnInd){
-            return Candy.columnInd, Candy.rowInd;
-        }
-        else{
-            return null;
+    getCandyAt(row, col) {
+        var location = function(row, col){
+            if(row == this.rowInd && col == columnInd){
+                return Candy.columnInd, Candy.rowInd;
+            }
+            else{
+                return null;
+            }
         }
     }
-}
 
 /*Get the location of the candy (row, column) if it's on the board or null if it's not found.*/
-getLocationOf(candy) {
-    var candy = function(row, col){
-        if (Candy.rowNumber && Candy.colNumber){
-            return rowNumber, colNumber;
-        }
-        else{
-            return null;
+    getLocationOf(candy) {
+        var candy = function(row, col){
+            if (Candy.rowNumber && Candy.colNumber){
+                return rowNumber, colNumber;
+            }
+            else{
+                return null;
+            }
         }
     }
-}
 
 /*Get a list of all candies on the board, in no particular order */
-getAllCandies(){
-    var allCandies = function(row, col){
-        for (candy = 0; candy < candy.getBoardSize; candy++){
-            var candyList = {};
-            candyList.append(candy);
+    getAllCandies(){
+        var allCandies = function(row, col){
+            for (candy = 0; candy < candy.getBoardSize; candy++){
+                var candyList = {};
+                candyList.append(candy);
+            }
         }
     }
-}
 
+    
 }
 
 
