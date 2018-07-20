@@ -22,7 +22,7 @@ A candy is constructed using a ``` color``` and a ```unique ID```. Both of these
 Define the candy colors in a list as a candy field. Candy colors include: ``` "red" , "yellow", "green", "orange", 
 "blue"``` and ``` "purple"```
 
-
+    
 ### Methods 
 
 Getter and setter methods for the ```row``` and ```column```
