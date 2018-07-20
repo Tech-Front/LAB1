@@ -1,80 +1,15 @@
-// -----------------THE CANDY CLASS-------------
-/**
- * Representation of a candy on board(which are mutable)
- */
-class Candy {
-    /**
-     * 
-     * @param {String} color of candy
-     * @param {String} uniqueID representing candy
-     */
-    constructor(color, uniqueID) {
-        //Immutable fields
-        Object.defineProperty(this, "color", {
-            value: color,
-            writable: false
-        });
-        Object.defineProperty(this, "uniqueID", {
-            value: uniqueID,
-            writable: false
-        });
-
-        //Other fields
-        this.row = null;
-        this.col = null;
-    }
-
-    //Getter and setter methods for the row and column properties
-    get row() {
-        return this._row;
-    }
-
-    set row(value) {
-        this._row = value;
-    }
-
-    get col() {
-        return this._col;
-    }
-
-    set col(value) {
-        this._col = value;
-    }
-
-    /**
-     * @returns String representation of the Candy
-     */
-    toString() {
-        return ("UniqueID: " + this.uniqueID + " Color: " + this.color +
-            "\nPosition-> row: " + this.row + " column: " + this.col);
-    }
-}
-/**
- * A list of colors that a candy can be
- */
-Candy.colors = [
-    'red',
-    'yellow',
-    'green',
-    'orange',
-    'blue',
-    'purple'
-];
-
-
-//-----------------------THE BOARD CLASS-----------------------------
 /**
 * Representation of the candyboard: a square array of squares
 */
-class Board {
-
+class Board{
+    
     /**
     * Constructor for Board
     * @param {Number} size 
     */
-    constructor(size) {
+    constructor(size){
         //Board size is immutable
-        Object.defineProperty(this, "boardSize", {
+        Object.defineProperty(this,"boardSize",{
             value: size,
             writable: false
         });
@@ -94,29 +29,33 @@ class Board {
 
         //Create an empty board
         for (let i = 0; i < this.square.length; i++) {
-            this.square[i] = new Array(this.boardSize);
-        }
+            this.square[i] = new Array(this.boardSize);            
+        }     
     }
 
     //Methods
 
     /**
     *Returns a boolean indication of whether the row and column identify a valid square on the board.
+    *@param {Number} row
+    *@param {Number} col
     *@returns {Boolean} valid square or not
     */
     isValidLocation(row, col) {
         return (row >= 0 && col >= 0 &&
             row <= this.boardSize && col <= this.boardSize &&
-            Number.isInteger(row) && Number.isInteger(col));
+            Number.isInteger(row) && Number.isInteger(col));  
     }
 
     /** 
-    *@returns {Boolean} true if location is empty false if occupied with candy
+    * @param {Number} row
+    * @param {Number} col
+    * @returns {Boolean} true if location is empty false if occupied with candy
     */
     isEmptyLocation(row, col) {
-        if (this.getCandyAt(row, col)) {
+        if(this.getCandyAt(row,col)){
             return false;
-        } else {
+        }else{
             return true;
         }
     }
@@ -124,46 +63,48 @@ class Board {
     /**
     * @returns {Number} number of squares on each side
     */
-    getBoardSize() {
-        return this.boardSize;
-    }
+   getBoardSize(){
+       return this.boardSize;
+   }
 
     /**
+    * @param {Number} row
+    * @param {Number} col
     * @returns {Boolean} candy on square or null if empty
     */
     getCandyAt(row, col) {
         if (this.isValidLocation(row, col)) {
             return this.square[row][col];
         }
-    }
-
+    } 
+    
     /**
      * @param {Candy} candy
      * @returns {Object} position of candy (row,column) | null if not found
      */
-    getLocationOf(candy) {
-        return { row: candy.row, col: candy.col };
+    getLocationOf(candy){
+        return {row:candy.row,col:candy.col};
     }
 
     /**
      * @returns {Array} List of all candies on the board, no order
      */
-    getAllCandies() {
-        var allCandies = [];
+   getAllCandies(){
+       var allCandies = [];
         for (var currRow in this.square) {
             for (var currCol in this.square[currRow]) {
-                if (this.square[currRow][currCol]) {
+                if (this.square[currRow][currCol]){
                     allCandies.push(this.square[currRow][currCol]);
                 }
             }
         }
         return allCandies;
-    }
+   }
 
-    /*
-    *The board broadcasts four event types: add, remove, move, scoreUpdate
-    *
-    */
+/*
+*The board broadcasts four event types: add, remove, move, scoreUpdate
+*
+*/
 
     /**
     * Add new candy to the board. Requires candy added to not be on the board
@@ -181,8 +122,8 @@ class Board {
     * @param {Number} spawnCol index
     * 
     */
-    add(candy, row, col, spawnRow, spawnCol) {
-        if (this.isEmptyLocation(row, col)) {
+   add(candy,row,col,spawnRow,spawnCol){
+        if(this.isEmptyLocation(row,col)){
             //create a detail object to be passed to the event
             var details = {
                 candy: candy,
@@ -199,40 +140,40 @@ class Board {
             this.square[row][col] = candy;
         }
 
-        var add = new CustomEvent("add", { detail: details });
+        var add = new CustomEvent("add",{detail:details});
         document.dispatchEvent(add);
-    }
+   }   
 
-    /**
-     * Candy must be already on the board
-     * (toRow,toCol) must be a valid Empty square
-     * Moves the candy to (toRow,toCol) position
-     * Dispatches a new  "move" event with
-     * details on the candy, toRow, fromRow, toCol, fromCol.
-     * @param {Candy} candy
-     * @param {Number} toRow
-     * @param {Number} toCol
-     */
-    moveTo(candy, toRow, toCol) {
-        if (this.isEmptyLocation(toRow, toCol)) {
-            var details = {
-                candy: candy,
-                toRow: toRow,
-                toCol: toCol,
-                fromRow: candy.row,
-                fromCol: candy.col
-            };
+   /**
+    * Candy must be already on the board
+    * (toRow,toCol) must be a valid Empty square
+    * Moves the candy to (toRow,toCol) position
+    * Dispatches a new  "move" event with
+    * details on the candy, toRow, fromRow, toCol, fromCol.
+    * @param {Candy} candy
+    * @param {Number} toRow
+    * @param {Number} toCol
+    */
+   moveTo(candy,toRow,toCol){
+       if (this.isEmptyLocation(toRow, toCol)) {
+           var details = {
+               candy: candy,
+               toRow: toRow,
+               toCol: toCol,
+               fromRow: candy.row,
+               fromCol: candy.col
+           };
 
-            delete this.square[candy.row][candy.col];
-            this.square[toRow][toCol] = candy;
+           delete this.square[candy.row][candy.col];
+           this.square[toRow][toCol] = candy;
 
-            candy.row = toRow;
-            candy.col = toCol;
+           candy.row = toRow;
+           candy.col = toCol;
 
-            var move = new CustomEvent("move", { detail: details });
-            document.dispatchEvent(move);
-        }
-    }
+           var move = new CustomEvent("move", { detail: details });
+           document.dispatchEvent(move);
+       }
+   }
 
     /**
      * Removes candy from the board, requires candy to be present
@@ -262,11 +203,11 @@ class Board {
     * @param {Number} col
      */
     removeAt(row, col) {
-        if (!this.isEmptyLocation(row, col)) {
+        if(!this.isEmptyLocation(row,col)){
             this.remove(this.square[row][col]);
-        } else {
+        }else{
             console.log("Empty square");
-
+            
         }
     }
 
@@ -277,7 +218,7 @@ class Board {
         for (var currRow in this.square) {
             for (var currCol in this.square[currRow]) {
                 if (this.square[currRow][currCol]) {
-                    this.removeAt(currRow, currCol);
+                    this.removeAt(currRow,currCol);
                 }
             }
         }
@@ -293,8 +234,8 @@ class Board {
     * 
     */
     addCandy(color, row, col, spawnRow, spawnCol) {
-        var candy = new Candy(color, this.candyCount++);
-        this.add(candy, row, col, spawnRow, spawnCol);
+        var candy = new Candy(color,this.candyCount++);
+        this.add(candy,row,col,spawnRow,spawnCol);
     }
 
     /**
@@ -305,9 +246,9 @@ class Board {
     * @param {Number} spawnCol
     */
     addRandomCandy(row, col, spawnRow, spawnCol) {
-        var myRandom = Math.floor(Math.random() * Candy.colors.length);
+        var myRandom = Math.floor(Math.random()* Candy.colors.length);
         var randomColor = Candy.colors[myRandom];
-        var candy = new Candy(randomColor, this.candyCount++);
+        var candy = new Candy(randomColor,this.candyCount++);
         this.add(candy, row, col, spawnRow, spawnCol);
     }
 
@@ -363,7 +304,7 @@ class Board {
         candy2.row = details2.toRow;
         candy2.col = details2.toCol;
         this.square[details2.toRow][details2.toCol] = candy2;
-
+        
         //Fire two move events
         var move1 = new CustomEvent("move", { detail: details1 });
         document.dispatchEvent(move1);
@@ -381,8 +322,8 @@ class Board {
         var details = {
             score: this.score
         };
-        var scoreUpdate = new CustomEvent("scoreUpdate", { detail: details });
-        document.dispatchEvent(scoreUpdate);
+        var scoreUpdate = new CustomEvent("scoreUpdate",{detail: details});
+        document.dispatchEvent(scoreUpdate);        
     }
 
     /**
@@ -398,9 +339,9 @@ class Board {
             score: this.score,
             candy: candy,
             row: row,
-            col: col
+            col:col
         };
-
+        
         var scoreUpdate = new CustomEvent("scoreUpdate", { detail: details });
         document.dispatchEvent(scoreUpdate);
     }
@@ -417,11 +358,25 @@ class Board {
 
     /**
     * Returns a string representation of the board
+    *  c represents candy and ~ represents empty square
     * @returns {String} representation of the board
     */
     toString() {
-        return ("Board size: " + this.boardSize +
-            "\nNumbe of candies: " + this.candyCount +
-            "\nCurrent score: " + this.score);
-    }
+        var representation = "";
+
+        var size = this.boardSize;
+        for(let row = 0; row < size; ++row ){
+            for(let col = 0; col < size; ++col){
+                var candy = this.square[row][col];
+                if(candy){
+                    representation += "c ";
+                }else{
+                    representation += "~ ";
+                }
+            }
+            representation += "\n";
+        }
+               
+        return representation;
+    }    
 }
