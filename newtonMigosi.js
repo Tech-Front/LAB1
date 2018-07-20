@@ -139,12 +139,12 @@ class Grid {
 
     get pretty_grid() {
         const cell_width = this.slots.reduce((a, b) => { return Math.max(a.toString().length, b.toString().length); }) + 5;
-        const cell_height = 2;
-
+        console.log(cell_width);
         let pretty_grid = '';
         
         const horizontal_border = '*'.repeat((cell_width + 2) * this.columns);
-        const row_separator = '-'.repeat(horizontal_border.length - 2);
+        // console.log(horizontal_border - 2);
+        const row_separator = '-'.repeat(horizontal_border.length);
         const vertical_border = '|';
         const newl = '\n';
         const padding = ' ';
@@ -419,10 +419,14 @@ function testGrid(rows, cols) {
     
     let count = 0;
     while (count < g.size) {
+        
         let c = new Candy(count, pickRandom(COLORS));
+        
         c.position = Grid.matrixIndex(g.columns, count);
+        
         g.fillCell(c.position, c);
         !g.isEmptyCell(c.position) ? console.log(`Added ${c.fullInfo}`) : console.error(`Couldn't addToGrid ${c.fullInfo}`);
+        
         count++;
     }
     
@@ -480,8 +484,8 @@ function testBoard(size) {
 }
 
 function testMultipleGrids(max_rows, max_cols) {
-    for (let rows= 1; rows < max_rows; rows++) {
-        for (let columns = 1; columns <max_cols; columns++) {
+    for (let rows= 4; rows < max_rows; rows++) {
+        for (let columns = 4; columns <max_cols; columns++) {
             console.log('\n');
             testGrid(rows, columns);
             console.log('\n');
@@ -489,6 +493,6 @@ function testMultipleGrids(max_rows, max_cols) {
     }
 }
 
-testGrid(4,5);
+testGrid(2,2);
 // testBoard(5);
 // testMultipleGrids(10, 10);
