@@ -22,24 +22,52 @@ class Board{
 
     }
     /*Events broadcasted by the board*/
-    add(){
+    add(candy, row, col, spawnRow, spawnCol){
         var btn = document.querySelector('add');
         btn.onClick = function(){
-        var newCandy = Candy();
+        for (!col === candy; col < spawnRow; candy++){
+            for (!row === candy; col < spawnCol; candy++){
+                Square.extend();
+                var newCandy = Candy();
+            }
+        }
         }
     }
-
-    remove(){
+    /*Removes a candy from this board. Requires that candy be found on this board. Dispatches a new  "remove" event with details on the candy*/
+    remove(candy){
         var btn = document.querySelector('remove');
         if (btn.onClick('remove')){
-            delete this.Candy();
+            delete this.candy();
         }
     }
 
-    move(){
+    
+/*Removes candy at given location from this board. Requires that candy be found on this board. */
+    removeAt(row, col, candy) {
+    var btn = document.querySelector('removeAt');
+    if (btn.onClick('removeAt')){
+        if (candy in candyList){
+            candy.remove();
+            }
+        else{
+            alert('The candy doesnt exist!');
+            }
+        }
+    }
+
+
+    moveTo(candy, toRow, toCol){
         var btn = document.querySelector('move');
-        if(btn.onClick('move')){
-            Square.extend();
+        btn.onClick(candy) = function(){
+            if (!candy.colNumber === toCol && !candy.rowNumber === toRow){
+                alert("Already where you wanna go");
+            }
+            else{
+                candy.colNumber = toCol;
+                candy.rowNumber = toRow;
+
+            }
+
         }
     }
 
@@ -48,7 +76,6 @@ class Board{
         var currentScore = function(){
             var myScore = document.URL.indexOf('');
         }
-
         return myScore;
     }
 
@@ -122,14 +149,72 @@ Returns the number of squares on each side of the board
 /*Get a list of all candies on the board, in no particular order */
     getAllCandies(){
         var allCandies = function(row, col){
-            for (candy = 0; candy < candy.getBoardSize; candy++){
-                var candyList = {};
+            for (candy === 0; candy < candy.getBoardSize; candy++){
+                var candyList = [];
                 candyList.append(candy);
             }
         }
     }
 
-    
+
+/*Remove all candies from board */
+    clear(candy) {
+        for(candylist.includes(candy); candy < candyList.length; candy++){
+            candy.remove();
+        }
+    }
+
+/* Adds a candy of randowm color at row, col*/
+    addRandomCandy(row, col, spawnRow, spawnCol) {
+    var randCandy = function(candy){
+        if(!candy.spawnRow === row){
+            var randColor = Math.floor(Math.random()*candyColors.length);
+            return candy.setAttribute('src', candyColor[randColor]);
+            return candy [spawnRow], [spawnCol];
+        }
+        else{
+            return null;
+        }
+    }
+}
+
+/*Resets the score. dispatches a new scoreUpdateEvent with details on the score.*/
+    resetScore() {
+    var resetScore = new Event('reset');
+    Element.addEventListener('reset', function (clear){
+        var myScore = document.URL.indexOf('');
+        myScore = 0;
+
+    }, false)
+
+    Element.dispatchEvent(resetScore);
+}
+
+/* Adds some score Dispatches a new "scoreUpdate" event with details on score, candy, row and col.
+*/
+    incrememtScore(candy, row, col) {
+    var incrementScore = new Event('incerement');
+    Element.addEventListener('increment', function (increment){
+        var myScore = document.URL.indexOf('');
+        myScore = +myScore;
+        return candy.setAttribute('row' [], 'col' []);
+
+    }, false)
+    Element.dispatchEvent(incrementScore);
+}
+
+/*Returns current score*/ 
+    getScore() {
+    scoreUpdate();
+}
+
+/*Returns a string representation of the board*/
+    toString() {
+        for(candylist.includes(candy); candy < candyList.length; candy++){
+            console.log(Math.random());
+        }
+    }
+
 }
 
 
