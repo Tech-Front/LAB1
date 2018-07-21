@@ -15,155 +15,145 @@ class Cell {
     toString() {
         return `Cell{row: ${this.row}, column: ${this.column}}`;
     }
-    
+
     toArray() {
         return [this.row, this.column];
     }
 }
-
-class Candy {
-    constructor(id, color) {
-        this.id = id;
-        this.color = color;
-        this.row = null;
-        this.column = null;
-    }
-
-    set position(cell) {
-        this.row = cell.row;
-        this.column = cell.column;
-    }
-
-    get position() {
-        return new Cell(this.row,this.column);
-    }
-
-    setPosition(row, column) {
-        this.position = new Cell(row, column);
-    }
-
-    getPosition() {
-        return this.position;
-    }
-
-    toString() {
-        return `${this.color} candy`;    
-    }
-    
-    get fullInfo() {
-        return `#${this.id} ${this.color} candy at ${this.position.toString()}`;
-    }
-
-    get clone() {
-        const candyClone = new Candy(this.id, this.color);
-        candyClone.position = this.position;
-        return candyClone;
-    }
-}
-
 class Grid {
     constructor(num_rows, num_columns, val = null) {
+        Grid.validateRowCol(num_rows, num_columns);
         this.rows = num_rows;
         this.columns = num_columns;
         this.slots = new Array(num_rows * num_columns).fill(val);
     }
-    
+
     static flatIndex(num_columns, cell) {
-        return cell.row * num_columns + cell.column;
+        return (cell.row * num_columns) + cell.column;
     }
 
     static matrixIndex(num_columns, index) {
-        return new Cell(Math.floor(index / num_columns) , index % num_columns);
+        return new Cell(Math.floor(index / num_columns), index % num_columns);
     }
 
     isValidCell(cell) {
         return Grid.flatIndex(this.columns, cell) >= 0 && Grid.flatIndex(this.columns, cell) < this.size;
     }
 
-    getCell(cell) {
-        if (this.isValidCell(cell)) {
-            return this.slots[Grid.flatIndex(this.columns, cell)];
-        } else {
-            const err = new Error(`${cell.toString()} isn't valid cell in ${this.toString()}`);
-            throw err;
-        }
-    }
-
     isEmptyCell(cell) {
         return this.getCell(cell) == null;
     }
 
-    fillCell(cell, obj) {
-        if (this.isValidCell(cell)) {
-            this.slots[Grid.flatIndex(this.columns, cell)] = obj;
-            return this.getCell(cell);
+    static validate(isValid, msg, callback = () => { return true; }, args = [], thisArg = this) {
+        if (isValid) {
+            return callback.call(thisArg, ...args, true);
         } else {
-            const err = new Error(`${cell.toString()} isn't valid cell in ${this.toString()}`);
+            const err = new Error(msg);
             throw err;
         }
+    }
+
+    static validateRowCol(num_rows, num_columns) {
+        const isValid = num_rows > 0 && num_columns > 0 && Number.isInteger(num_rows) && Number.isInteger(num_columns);
+        const error_msg = `Cannot initialize ${num_rows} by ${num_columns} Grid`;
+
+        return Grid.validate(isValid, error_msg);
+    }
+
+    validateCell(cell, callback, args = []) {
+        const isValid = this.isValidCell(cell);
+        const error_msg = `${cell.toString()} isn't valid cell in ${this.dimension} Grid`;
+        const argv = [cell, ...args];
+
+        return Grid.validate(isValid, error_msg, callback, argv, this);
+    }
+
+    validateIndex(index, max, callback, args = [], min = 0) {
+        const isValid = index < max && index >= min;
+        const error_msg = `Out of Index Error: ${index} not in range[${min}, ${max})`;
+        const argv = [index, ...args];
+
+        return Grid.validate(isValid, error_msg, callback, argv, this);
     }
 
     find(rule) {
         return Grid.matrixIndex(this.columns, this.slots.findIndex(rule));
     }
 
-    getRow(row_num) {
-        if (row_num < this.rows) {
-            return [...this.slots.slice(row_num * this.columns, row_num * this.columns + this.columns)];
-        } else {
-            const err = new Error(`Out of Index Error: ${row_num} not in range [0, ${this.rows})`);
-            throw err;
-        }
-    }
-    
-    get allRows() {
-        const allrows = new Array(this.rows).fill('*');
-        allrows.forEach((_, ind, arr) => { arr[ind] = this.getRow(ind); });
-        return allrows;
-    }
-    
-    get grid() {
-        let grid = '';
-        this.allRows.forEach((_, ind) => { grid += `${this.getRow(ind)}\n`; })        
-        return grid;
+    getCell(cell, validated = false) {
+        return validated ?
+            this.slots[Grid.flatIndex(this.columns, cell)] :
+            this.validateCell(cell, this.getCell);
     }
 
-    getColumn(col_num) {
-        if (col_num < this.columns) {
-            return this.slots.filter((_, ind) => { return ind % this.columns === col_num; });
-        } else {
-            const err = new Error(`Out of Index Error: ${col_num} not in range [0, ${this.columns})`);
-            throw err;
-        }
+    fillCell(cell, obj, validated = false) {
+        return validated ?
+            (this.slots[Grid.flatIndex(this.columns, cell)] = obj) && this.getCell(cell) :
+            this.validateCell(cell, this.fillCell, [obj]);
+    }
+
+
+    getRow(row_num, validated = false) {
+        return validated ?
+            [...this.slots.slice(row_num * this.columns, row_num * this.columns + this.columns)] :
+            this.validateIndex(row_num, this.rows, this.getRow);
+    }
+
+    getColumn(col_num, validated = false) {
+        return validated ?
+            this.slots.filter((_, ind) => { return ind % this.columns === col_num; }) :
+            this.validateIndex(col_num, this.columns, this.getColumn);
+    }
+
+    getMany(fn, num) {
+        return [...new Array(num).fill('*')].map((_, ind) => { return fn.call(this, ind); });
+    }
+
+    get allRows() {
+        return this.getMany(this.getRow, this.rows);
+    }
+
+    get allColumns() {
+        return this.getMany(this.getColumn, this.columns);
+    }
+
+    get dimension() {
+        return `${this.rows} by ${this.columns}`;
+    }
+
+    get size() {
+        return this.rows * this.columns;
+    }
+
+    get grid() {
+        return this.allRows.map(row => { return `${row}\n`; }).toString();
     }
 
     get pretty_grid() {
         const cell_width = this.slots.reduce((a, b) => { return Math.max(a.toString().length, b.toString().length); }) + 5;
-        console.log(cell_width);
         let pretty_grid = '';
-        
-        const horizontal_border = '*'.repeat((cell_width + 2) * this.columns);
-        // console.log(horizontal_border - 2);
+
+        const horizontal_border = '*'.repeat((cell_width + 2) * this.columns + 2);
         const row_separator = '-'.repeat(horizontal_border.length);
         const vertical_border = '|';
         const newl = '\n';
         const padding = ' ';
 
-        const centre = (str) => { 
+        const centre = (str) => {
             const ws = (cell_width - str.length);
-            const [left, right] = [Math.ceil(ws / 2), Math.floor(ws / 2)]; 
-            return padding.repeat(left) + str + padding.repeat(right); 
+            const [left, right] = [Math.ceil(ws / 2), Math.floor(ws / 2)];
+            return padding.repeat(left) + str + padding.repeat(right);
         };
 
         const addBoarder = (str) => { return vertical_border + str + vertical_border; };
 
         pretty_grid += horizontal_border + newl;
 
-        this.allRows.forEach((row, ind, arr) =>  {
+        this.allRows.forEach((row, ind, arr) => {
             pretty_grid += vertical_border;
 
             row.forEach(val => {
-                pretty_grid +=  addBoarder(centre(val.toString()));
+                pretty_grid += addBoarder(centre(val.toString()));
             });
 
             pretty_grid += vertical_border + newl;
@@ -178,17 +168,12 @@ class Grid {
         return pretty_grid;
     }
 
-    get size() {
-        return this.rows * this.columns;
-    }
-
     toString() {
-        return `${this.rows} by ${this.columns} Grid`;
+        return `${this.dimension} Grid`;
     }
 }
 
-// CustomEvent is a temporary class for testing code
-class CustomEvent{
+class CustomEvent {
     constructor(name, detail) {
         this.name = name;
         this.details = detail.detail;
@@ -198,6 +183,53 @@ class CustomEvent{
         console.log(`${e.name} event dispatched ${e.details}`);
     }
 }
+
+class Candy {
+    constructor(id, color) {
+        Object.defineProperty(this, 'id', {
+            value: id,
+            writable: false,
+        });
+        Object.defineProperty(this, 'color', {
+            value: color,
+            writable: false,
+        });
+        this.row = null;
+        this.column = null;
+    }
+
+    set position(cell) {
+        this.row = cell.row;
+        this.column = cell.column;
+    }
+
+    get position() {
+        return new Cell(this.row, this.column);
+    }
+
+    setPosition(row, column) {
+        this.position = new Cell(row, column);
+    }
+
+    getPosition() {
+        return this.position;
+    }
+
+    toString() {
+        return `${this.color} candy`;
+    }
+
+    get fullInfo() {
+        return `#${this.id} ${this.color} candy at ${this.position.toString()}`;
+    }
+
+    get clone() {
+        const candyClone = new Candy(this.id, this.color);
+        candyClone.position = this.position;
+        return candyClone;
+    }
+}
+
 class Board extends Grid {
     constructor(size) {
         super(size, size);
@@ -216,6 +248,10 @@ class Board extends Grid {
 
     get valid_colors() {
         return this.colors;
+    }
+
+    get valid_directions() {
+        return ['up', 'down', 'left', 'right'];
     }
 
     get boardSize() {
@@ -244,23 +280,25 @@ class Board extends Grid {
     isEmptyAndValid(cell) {
         return super.isValidCell(cell) && super.isEmptyCell(cell);
     }
-    
+
     updateAddCandy(candy, cell) {
-        candy.position = cell;    
+        candy.position = cell;
         super.fillCell(cell, candy);
     }
 
-    add(candy, row, col, spawnRow=null, spawnCol=null) {
+    add(candy, row, col, spawnRow = null, spawnCol = null) {
         const location = new Cell(row, col);
-        const valid = this.isEmptyAndValid(location) && !this.getLocationOf(candy) ;
+        const valid = this.isEmptyAndValid(location) && !this.getLocationOf(candy);
         if (valid) {
             this.updateAddCandy(candy, location);
-            const event = new CustomEvent('add', {detail: {
-                                        candy: candy, 
-                                        row: row, 
-                                        col: col, 
-                                        spawnRow: spawnRow, 
-                                        spawnCol: spawnCol }
+            const event = new CustomEvent('add', {
+                detail: {
+                    candy: candy,
+                    row: row,
+                    col: col,
+                    spawnRow: spawnRow,
+                    spawnCol: spawnCol
+                }
             });
 
             CustomEvent.dispatchEvent(event);
@@ -309,7 +347,7 @@ class Board extends Grid {
     removeAt(row, col) {
         const location = new Cell(row, col);
         const valid = super.isValidCell(location);
-        if (valid){
+        if (valid) {
             const candy = super.getCell(location);
             super.fillCell(candy.position, null);
             const event = new CustomEvent('remove', {
@@ -326,11 +364,11 @@ class Board extends Grid {
     }
 
     clear() {
-        this.slots = new Array(this.size*this.size).fill(null);
+        this.slots = new Array(this.size * this.size).fill(null);
     }
 
-    addCandy(color, row, col, spawnRow=null, spawnCol=null) {
-        this.add(new Candy(this.candies, color) ,row, col, spawnRow, spawnRow);
+    addCandy(color, row, col, spawnRow = null, spawnCol = null) {
+        this.add(new Candy(this.candies, color), row, col, spawnRow, spawnRow);
         this.candies++;
     }
 
@@ -344,7 +382,7 @@ class Board extends Grid {
     }
 
     getCandyInDirection(fromCandy, direction) {
-        switch(direction) {
+        switch (direction) {
             case 'up':
                 return this.getCandyAt(fromCandy.position.row - 1, fromCandy.position.column);
             case 'down':
@@ -377,10 +415,12 @@ class Board extends Grid {
     }
 
     resetScore() {
-        const event = new CustomEvent('scoreUpdate', { detail: {
-            prev_score: this.current_score,
-            new_score: 0
-        }});
+        const event = new CustomEvent('scoreUpdate', {
+            detail: {
+                prev_score: this.current_score,
+                new_score: 0
+            }
+        });
         this.current_score = 0;
         CustomEvent.dispatchEvent(event);
 
@@ -388,13 +428,15 @@ class Board extends Grid {
 
     incrementScore(candy, row, col) {
         const INC = 0;
-        const event = new CustomEvent('scoreUpdate', { detail: {
-            prev_score: this.current_score,
-            new_score: this.current_score + INC,
-            candy: candy,
-            row: row,
-            col: col
-        }});
+        const event = new CustomEvent('scoreUpdate', {
+            detail: {
+                prev_score: this.current_score,
+                new_score: this.current_score + INC,
+                candy: candy,
+                row: row,
+                col: col
+            }
+        });
         this.current_score = this.current_score + INC;
         CustomEvent.dispatchEvent(event);
 
@@ -408,91 +450,3 @@ class Board extends Grid {
         return this.grid;
     }
 }
-
-const pickRandom = (arr) => { return arr[Math.floor(Math.random()*arr.length)]; };
-
-function testGrid(rows, cols) {
-    const COLORS = ['red', 'green', 'blue', 'yellow'];
-    const inGrid = (cell) => { return cell.row > -1 && cell.column > -1; };
-    
-    const g = new Grid(rows, cols);
-    
-    let count = 0;
-    while (count < g.size) {
-        
-        let c = new Candy(count, pickRandom(COLORS));
-        
-        c.position = Grid.matrixIndex(g.columns, count);
-        
-        g.fillCell(c.position, c);
-        !g.isEmptyCell(c.position) ? console.log(`Added ${c.fullInfo}`) : console.error(`Couldn't addToGrid ${c.fullInfo}`);
-        
-        count++;
-    }
-    
-    console.log('\n', g.pretty_grid);
-
-    [...COLORS, 'pink'].forEach(color => {
-        let location = g.find(candy => { return candy.color == color; });
-        if (inGrid(location)) {
-            console.log(`Found ${g.getCell(location).fullInfo}`);
-        } else {
-            console.error(`Didn't find ${color} candy`);
-        }
-    });
-
-}
-
-function testBoard(size) {
-    const b = new Board(size);
-    const randomCell = (size) => { return [Math.floor(Math.random()*size), Math.floor(Math.random()*size)]; };
-    const directions = ['up', 'down', 'left', 'right'];
-
-    let count = 0;
-    while (count < b.boardSize * b.boardSize) {
-        b.addRandomCandyCell(Grid.matrixIndex(b.columns, count));
-        count++;
-    }
-
-    let c = b.getCandyAt(...randomCell(b.boardSize));
-    console.log(c.fullInfo);
-    
-    let d;
-    let found = false;
-    while (!found) {
-        try {
-            d = b.getCandyInDirection(c, pickRandom(directions));
-            found = true;
-        } catch (e) {
-            // console.error(e);
-            found = false;
-        }
-    }
-    console.log(d.fullInfo);
-    
-    console.log(`\nFlipping b and c:`);
-    console.log(b.toString());
-    b.flipCandies(c, d);
-    console.log(b.toString());
-
-    console.log(`\nRemoving c:`);
-    b.remove(c);
-    console.log(b.toString());
-
-    b.clear();
-    console.log(b.getAllCandies());
-}
-
-function testMultipleGrids(max_rows, max_cols) {
-    for (let rows= 4; rows < max_rows; rows++) {
-        for (let columns = 4; columns <max_cols; columns++) {
-            console.log('\n');
-            testGrid(rows, columns);
-            console.log('\n');
-        }
-    }
-}
-
-testGrid(2,2);
-// testBoard(5);
-// testMultipleGrids(10, 10);
