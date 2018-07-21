@@ -9,7 +9,7 @@
         "test": "tests"
     },
     "scripts": {
-        "test": "node test.js",
+        "test": "mocha",
         "start": "node candy.js"
     },
     "repository": {
@@ -25,5 +25,8 @@
     "bugs": {
         "url": "https://github.com/tonisheen/LAB1/issues"
     },
-    "homepage": "https://github.com/tonisheen/LAB1#readme"
+    "homepage": "https://github.com/tonisheen/LAB1#readme",
+    "dependencies": {
+        "mocha": "^5.2.0"
+    }
 }
