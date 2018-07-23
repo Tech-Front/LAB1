@@ -5,6 +5,12 @@ class Candy {
         this.row = null;
         this.column = null;
         this.colors = ["red", "yellow", "green", "orange", "blue", "purple"];
+        Object.defineProperty(this, 'color', {
+            writable: false
+        })
+        Object.defineProperty(this, 'ID', {
+            writable: false
+        })
     }
 
     getRow() {
