@@ -86,10 +86,38 @@ class Board {
    */
   getAllCandies() {
     //Your code here
+    for(var i=0,len=this.square.length; ++1){
+        for (var j = 0, len2 = this.square[i].length; j < len2; j++){
 
+        }
+    }
+  }
+  /*
+   * Adds some score
+   * Dispatches a new "scoreUpdate" event with details on score, candy, row and col.
+   */
+  incrememtScore(candy, row, col) {
+      //Your code here
+      this.score += 1;
+      return `("Score: "+${this.score},"row: "+${row},"Column: "+${
+      this.col
+    }, "Candy: "+${candy})`;
+  }
+  /*
+   * Returns current score
+   */
+  getScore() {
+      //Your code here
+      return this.score;
   }
 
-
+/**
+ * Returns a string representation of the board
+ */
+toString() {
+    //Your code here
+    return `("SIZE: "+${this.size})`;
+}
   /**
    * Add a new candy to the board. Requires candy added to not be on the board an*d (row, col) must
    * be a valid empty square. The optional spawnRow and spawnCol indicate where the candy was "spawned"
@@ -167,31 +195,8 @@ class Board {
     //Your code here
   }
 
-  /*
-     * Adds some score
-     * Dispatches a new "scoreUpdate" event with details on score, candy, row and col.
-     */
-  incrememtScore(candy, row, col) {
-    //Your code here
-    this.score += 1;
-    return `("Score: "+${this.score},"row: "+${row},"Column: "+${
-      this.col
-    }, "Candy: "+${candy})`;
-  }
 
-  /*
-     * Returns current score
-     */
-  getScore() {
-    //Your code here
-    return this.score;
-  }
 
-  /**
-   * Returns a string representation of the board
-   */
-  toString() {
-    //Your code here
-    return `("SIZE: "+${this.size})`;
-  }
+
+
 }
