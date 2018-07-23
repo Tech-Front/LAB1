@@ -1,33 +1,40 @@
 //ADT for Candy data type
 class Candy{
     constructor(color, uniqueID){
-       this.color = color;
-       this.uniqueID =uniqueID; 
+       Object.defineProperty(this, 'color', {
+           value: color,
+           writable: false
+       });
+
+       Object.defineProperty(this, 'uniqueID', {
+           value: color,
+           writable: false
+       });
+
+       this.row = null;
+       this.col = null;
     }
-    //field for mutable row values initialized to null
-    row() {
-        return this.row = null;
-    }
-    //field for mutable column values initialized to null
-    column() {
-        return this.column = null;
-    }
+
     //field containing list for mutable color values initialized to null
     candyColors(){
-        this.candyColors = ['red', 'yellow', 'green', 'orange'];
+        Candy.colors = ['red', 'yellow', 'green', 'orange', 'blue', 'purple'];
     }
 
     //getter method returning string rep of candy
-    get CandyRep(){
-        var row =this.row();
-        var col =this.col();
-        return row, col;
+    get candyRep(){
+        return this.row;
+        return this.col;
     }
 
-    //setter method creating string representation of Candy
-    //new value ofCandy
-    set candyString(stringMe){
-        return this.Candy.toString();
+    //setter method returning string rep of candy
+    set candyRep(rowVal, colVal){
+        return this.row = rowVal;
+        return this.col = colVal;
+    }
+
+    candyToString(){
+        return ("Unique ID: " + this.uniqueID + "Color: "+this.color
+    +"Position: "+ this.row + "Column " + this.col);
     }
 };
 
