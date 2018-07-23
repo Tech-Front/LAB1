@@ -19,11 +19,13 @@ class Candy{
 
     //getter method returning string rep of candy
     get CandyRep(){
-        var candy =this.Candy();
-        return candy;
+        var row =this.row();
+        var col =this.col();
+        return row, col;
     }
 
     //setter method creating string representation of Candy
+    //new value ofCandy
     set candyString(stringMe){
         return this.Candy.toString();
     }
