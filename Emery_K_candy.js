@@ -1,18 +1,18 @@
 class Candy {
-	 constructor(color, uniqueId) {
-        this.color = color;
+	constructor(color, uniqueId) {
+		this.color = color;
 		this.uniqueID = uniqueId;
 		this.row = null;
 		this.column = null;
-    }
-    toString() {
-        return 'Color: ' + this.color + ', ID: ' + this.uniqueID +
-          ', Row and Column: [' + this.row + '][' + this.column + ']';
-    }
+	}
+	
+	toString() {
+		return 'Color: ' + this.color + ', ID: ' + this.uniqueID +
+			', Row and Column: [' + this.row + '][' + this.column + ']';
+	}
 }
+
 var colors = ["red" , "yellow", "green", "orange", "blue", "purple"];
-
-
 
 get row(){
 	return this.row;
