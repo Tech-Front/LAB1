@@ -1,16 +1,17 @@
-class Candy{
-	constructor(Color, uniqueID){
-		this.color = color;
-		this.uniqueID = uniqueID;
+class Candy {
+	 constructor(color, uniqueId) {
+        this.color = color;
+		this.uniqueID = uniqueId;
 		this.row = null;
 		this.column = null;
-		this.colors = ["red" , "yellow", "green", "orange", "blue", "purple"];
-	}
+    }
+    toString() {
+        return 'Color: ' + this.color + ', ID: ' + this.uniqueID +
+          ', Row and Column: [' + this.row + '][' + this.column + ']';
+    }
 }
+var colors = ["red" , "yellow", "green", "orange", "blue", "purple"];
 
-toString(){
-	return (this.color, this.UniqueID, this.row, this.column);
-}
 
 
 get row(){
