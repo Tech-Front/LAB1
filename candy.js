@@ -36,8 +36,8 @@ class Candy {
 
     // Methods for getting values
     getPosition() {
-        row = getRow();
-        col = getColumn();
+        row = this.getRow();
+        col = this.getColumn();
         return { row: row, column: col };
     }
     getRow(row) {
