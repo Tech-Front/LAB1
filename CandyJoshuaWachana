@@ -1,0 +1,31 @@
+//Candy class constructed using a colour and a unique ID
+class Candy {
+    constructor (colour, uniqueID) {
+    this.colour=colour;
+    this.uniqueID=uniqueID;
+}
+row(){
+    this.row=null;
+}
+col(){
+    this.col=null;
+
+}
+//Getter and setter methods for the row and column
+get row(){
+    return this.row;
+}
+get col(){
+    return this.col;
+}
+
+};
+//Candy colors
+Array.Candy.colour =[
+    'red', 'yellow', 'green', 'orange', 'blue'
+];
+this.toString = uniqueID() 
+{
+var string = this.uniqueID;
+return uniqueID;
+};
