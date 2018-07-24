@@ -9,6 +9,7 @@ class Candy{
 }
 
 toString(){
+	return (this.color, this.UniqueID, this.row, this.column);
 }
 
 
