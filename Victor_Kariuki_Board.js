@@ -16,7 +16,7 @@ class Board {
 	 */
 	isValidLocation(row, col) {
 		//Your code here
-		return this.grid.every( row >= 0 && typeof row === "number" && row < this.size && col >= 0 && typeof col === "number" && col < this.size);
+		return this.grid.every(row >= 0 && typeof row === "number" && row < this.size && col >= 0 && typeof col === "number" && col < this.size);
 
 	}
 
@@ -87,8 +87,19 @@ class Board {
 	 * Dispaches a new "add" event with details containing the candy, fromRow, fromCol, toRow and toCol */
 	add(candy, row, col, spawnRow, spawnCol) {
 		//Your code here
-		if (this.isValidLocation && thsi.isEmptyLocation){
-			return 
+		if (this.isValidLocation(row, col) && this.isEmptyLocation(row, col)) {
+			let details = {
+				candy: candy,
+				toRow: row,
+				toCol: col,
+				fromRow: spawnRow,
+				fromCol: spawnCol
+			}
+
+			const addCandy = new CustomEvent('addCandy', {
+				detail: details
+			});
+			document.dispatchEvent(addCandy);
 		}
 	}
 
@@ -100,6 +111,21 @@ class Board {
 	 * details on the candy, toRow, fromRow, toCol, fromCol. */
 	moveTo(candy, toRow, toCol) {
 		//Your code here
+		if (this.isValidLocation(row, col) && this.isEmptyLocation(toRow, toCol)) {
+			let details = {
+				candy: candy,
+				toRow: toRow,
+				toCol: toCol,
+				fromCol: candy.col,
+				fromRow: candy.row
+
+			}
+			const moveCandy = new CustomEvent('moveCandy', {
+				detail: details
+			})
+
+			document.dispatchEvent(moveCandy)
+		}
 	}
 
 
@@ -109,7 +135,15 @@ class Board {
 	 * "remove" event with details on the candy, fromRow, fromCol.
 	 */
 	remove(candy) {
-		//Your code here 
+		//Your code here
+		if (this.isValidLocation()) {
+			const removeCandy = new CustomEvent('removeCandy', function () {
+				let postition = this.grid.indexOf(candy);
+				let remove = this.grid.splice(postition, 1);
+				return remove;
+			})
+			document.dispatchEvent(removeCandy);
+		}
 	}
 
 
@@ -118,6 +152,10 @@ class Board {
 	 * Reomves candy at given location from this board. Requires that candy be found on this board. */
 	removeAt(row, col) {
 		//Your code here
+		if (this.isValidLocation(row, col)) {
+			this.grid.splice()
+		}
+
 	}
 
 
@@ -126,7 +164,8 @@ class Board {
 	 * Remove all candies from board. 
 	 */
 	clear() {
-		//Your code here 
+		//Your code here
+		return this.grid.length = 0;
 	}
 
 
@@ -136,6 +175,23 @@ class Board {
 	 */
 	addCandy(color, row, col, spawnRow, spawnCol) {
 		//Your code here
+		let color = new Candy.colours(colour);
+		if (Candy.colour === color) {
+			if (this.isValidLocation(row, col)){
+				return candy.row = spawnRow;
+				return candy.col = spawnCol;
+				const addCandy = new CustomEvent('addCandy', {
+					detail: {
+						row: spawnRow,
+						col: spawnCol
+					}
+				})
+
+				document.dispatchEvent(addCandy);
+			}
+		}
+
+
 	}
 
 
@@ -146,6 +202,15 @@ class Board {
 	 */
 	addRandomCandy(row, col, spawnRow, spawnCol) {
 		//Your code here
+		if(this.isValidLocation(row, col)){
+			const addRandomCandy = new CustomEvent('addRandomCandy', {
+				detail: {
+					row: spawnRow,
+					col: spawnCol
+				}
+			})
+			document.dispatchEvent(addRandomCandy);
+		}
 	}
 
 
@@ -154,8 +219,17 @@ class Board {
 	* Returns the candy immediately in the direction specified ['up', 'down', 'left', 
 	'right'] from the candy passed as fromCandy
 	*/
-	getCandyInDirection(fromCcandy, direction) {
+	getCandyInDirection(fromCandy, direction) {
 		//Your code here
+		if (direction === 'right') {
+			return this.getLocationOf(fromCandy.col +1);
+		}else if (direction === 'left') {
+			return this.getLocationOf(fromCandy.col -1)
+		}else if (direction === 'up') {
+			return this.getLocationOf(fromCandy.row +1)
+		}else if (direction === 'down') {
+			return this.getLocationOf(fromCandy.col -1)
+		}
 	}
 
 
@@ -165,7 +239,31 @@ class Board {
 	 * on the candy, toRow, fromRow, toCol and fromCol are also dispatched
 	 */
 	flipCandies(candy1, candy2) {
-		//Your code here 
+		//Your code here
+		let details_1 = {
+			candy: candy1,
+			toRow: candy2.row,
+			fromRow: candy1.row,
+			toCol: candy2.col,
+			fromCol: candyq.col
+		};
+		let details_2 = {
+			candy: candy1,
+			toRow: candy1.row,
+			fromRow: candy2.row,
+			toCol: candy1.col,
+			fromCol: candy2.col
+		}
+
+		const moveCandy1 = new CustomEvent('moveCandy1', {
+			detail: details_1
+		})
+
+		document.dispatchEvent(moveCandy1);
+		const moveCandy2 = new CustomEvent('moveCandy2', {
+			detail: details_2
+		})
+		document.dispatchEvent(moveCandy2);
 	}
 
 
@@ -174,7 +272,15 @@ class Board {
 	 * Resets the score. dispatches a new scoreUpdateEvent with details on the score.
 	 */
 	resetScore() {
-		//Your code here 
+		//Your code here
+		const resetScore = new CustomEvent('resetScore', {
+			detail: {
+				score: this.score,
+				new_score: 0
+
+			}
+		})
+		document.dispatchEvent(resetScore);
 	}
 
 
@@ -183,7 +289,17 @@ class Board {
 	 * Dispatches a new "scoreUpdate" event with details on score, candy, row and col.
 	 */
 	incrememtScore(candy, row, col) {
-		//Your code here 
+		//Your code here
+		let counter = 0;
+		const scoreUpdate = new CustomEvent('scoreUpdate', {
+			previous_score: this.score,
+			new_score: this.score + counter,
+			candy: candy,
+			row: row,
+			col: col
+		})
+
+		document.dispatchEvent(scoreUpdate);
 	}
 
 
@@ -191,7 +307,8 @@ class Board {
 	 * Returns current score
 	 */
 	getScore() {
-		//Your code here 
+		//Your code here
+		return this.score;
 	}
 
 
@@ -200,6 +317,7 @@ class Board {
 	 */
 	toString() {
 		//Your code here 
+		return this.grid;
 	}
 
 
