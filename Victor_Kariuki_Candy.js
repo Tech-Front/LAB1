@@ -15,6 +15,7 @@ class Candy {
         this.col = null;
     }
 
+
     // Getters for the row and column
     get row() {
         return this.row;
