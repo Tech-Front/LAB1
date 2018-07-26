@@ -4,17 +4,7 @@ class Board {
             writable: false,
             value: size
         });
-        // Array.matrix = function(row,col,initial){
-        //     let arr = [];
-        //     for (var i=0; i < row; ++1){
-        //         var columns=[];
-        //         for (var j =0; j<col; ++1){
-        //             columns[j] = initial;
-        //         }
-        //         arr[i]=columns;
-        //     }
-        //     return arr;
-        // }
+
 
         this.square = new Array(this.size);
         this.board = new Array();
@@ -178,8 +168,22 @@ class Board {
       * Returns the candy immediately in the direction specified ['up', 'down', 'left', 
       'right'] from the candy passed as fromCandy
       */
-    getCandyInDirection(fromCcandy, direction) {
+    getCandyInDirection(fromCandy, direction) {
         //Your code here
+        switch (direction) {
+            case "up": {
+                return this.getCandyAt(fromCandy.row + 1, fromCandy.col);
+            }
+            case "down": {
+                return this.getCandyAt(fromCandy.row - 1, fromCandy.col);
+            }
+            case "left": {
+                return this.getCandyAt(fromCandy.row, fromCandy.col - 1);
+            }
+            case "right": {
+                return this.getCandyAt(fromCandy.row, fromCandy.col + 1);
+            }
+        }
     }
 
     /**
@@ -189,6 +193,18 @@ class Board {
      */
     flipCandies(candy1, candy2) {
         //Your code here
+
+        var candy1Details = {candy:candy1,toRow:candy2.row,toCol:candy2.col,fromRow:candy1.row, fromCol:candy1.col};
+        var candy2Details = {candy:candy2,toRow:candy1.row,toCol:candy1.col,fromRow:candy2.row, fromCol:candy2.col};
+        
+        candy1.row = candy1Details.toRow;
+        cnady2.row = candy2Details.toRow;
+        candy1.col = candy1Details.toCol;
+        candy2.col = candy2Details.toCol;
+        let flip1 = new Event("flip1",{"details":candy1Details});
+        let flip2 = new Event("flip2",{"details":candy2Details});
+        document.dispatchEvent(flip1);
+        document.dispatchEvent(flip2);
     }
 
     /**
