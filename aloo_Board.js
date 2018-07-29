@@ -61,7 +61,6 @@ class Board {
     getCandyAt(row, col) {
         //Your code here 
         let vm = this;
-        let isValidLocation = vm.isValidLocation(row, col);
         if(vm.isValidLocation(row, col)){
             if (this.surface[row][col] == 0) return null;
             return this.surface[row][col];
@@ -143,15 +142,35 @@ class Board {
         vm.state = 'FINAL';
     }
 
+    colGravitate(row, col, numberOfHoles){
+        let vm = this;
+        let countAboveHoles = this.col - col - numberOfHoles;
+        function 
+        while()
+        for(var i = 0; i < countAboveHoles; i ++){
+            vm.surface
+        }
+    }
+
+    rowGravitate(row, col, numberOfHoles){
+        let vm = this;
+        this
+        for(var i = 0; i < )
+    }
+
     sweep(){
         let vm = this;
         for(var i = 0; i < this.row; i++){
             for(var j = 0; j < this.col; j++){
-                let continuousHorizontalLength = vm.checkMatchesHorizontal(vm.surface[i][j]);
+                let continuousHorizontalLength = vm.checkMatchesHorizontal(vm.getCandyAt(i, j));
                 if(continuousHorizontalLength > 2){
-
+                    for(var k = 0; k < continuousHorizontalLength; k++){
+                        vm.surface[i][j+k] = 0;
+                    }
+                    vm.gravitate();
                 }
-                let continuousVerticalLength = vm.checkMatchesVertical(vm.surface[i][j]);
+                for(var l = 0; l < vm.row - )
+                let continuousVerticalLength = vm.checkMatchesVertical(vm.getCandyAt(i,j));
                 if(continuousVerticalLength > 2){
                     
                 }
@@ -287,9 +306,13 @@ class Board {
     getCandyInDirection(fromCandy, direction) {
         //Your code here
         let vm = this;
+        let returnedCandy;
+        let row = fromCandy.row;
+        let col = fromCandy.col;
         switch(direction){
             case('up'):
-
+                row = fromCandy.row - 1;
+                returnedCandy = vm.getCandyAt(row, col);
             case('down'):
             case('left'):
             case('right'):
@@ -304,6 +327,8 @@ class Board {
     */
     flipCandies(candy1, candy2) {
         //Your code here 
+        let vm = this;
+
     }
 
 
