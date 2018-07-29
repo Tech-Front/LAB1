@@ -4,6 +4,7 @@ class Board {
         this.col = col;
         this.surface = [];
         this.candies = [];
+        this.state = 'FINAL';
         this.events = require('events');
         this.eventEmitter = new events.EventEmitter();
     }
@@ -34,7 +35,11 @@ class Board {
     */
     isEmptyLocation(row, col) {
         //Your code here
-        return this.surface[row][col] == 0;
+        let vm = this;
+        if(vm.isValidLocation(row, col)){
+            return this.surface[row][col] == 0;
+        } else return "isEmptyLocation function using invalid board location";
+        
     }
 
 
@@ -44,7 +49,8 @@ class Board {
     */
     getBoardSize() {
         //Your code here 
-        return this.row * this.col;
+        if(this.row && this.col) return "("+this.row+", "+this.col+")";
+        else "row or col not initialized";
     }
 
 
@@ -54,8 +60,12 @@ class Board {
     */
     getCandyAt(row, col) {
         //Your code here 
-        if (this.surface[row][col] == 0) return null;
-        return this.surface[row][col];
+        let vm = this;
+        let isValidLocation = vm.isValidLocation(row, col);
+        if(vm.isValidLocation(row, col)){
+            if (this.surface[row][col] == 0) return null;
+            return this.surface[row][col];
+        } else return "getCandyAt function using invalid board location";
     }
 
 
@@ -80,11 +90,6 @@ class Board {
         return this.candies;
     }
 
-    findCandy(candy){
-        return this.candies.find(function (onSiteCandy){
-            return onSiteCandy.ID == candy.ID;
-        });
-    }
 
     /** 
     * Add a new candy to the board. Requires candy added to not be on the board an*d (row, col) must
@@ -103,28 +108,53 @@ class Board {
         //Your code here
         
         let vm = this;
-        vm.state = 'INTERMITENT';
+        let state = vm.getState();
+        if(state == 'FINAL'){
+            let candy = candy;
+            if(vm.isValidLocation(row, col)){
+                let found= vm.getAllCandies().find(function (onSiteCandy){
+                    return onSiteCandy.ID == candy.ID;
+                });
+                if(!found)  {
+                    vm.surface[row][col] = candy;
+                    vm.candies.push(candy);
+                    vm.sweep();
+                    vm.boardModification('add', candy, row, col);
+                    document.body.addEventListener("add", foo.func, {once:true})
+                } else return "candy already on board";
+            } else return "invalid location passed to function add";
+        } else return "cannot add candy to board during intermittent state";
+        
+    }
+
+    boardModification(action, candy, row, col){
+        let vm = this;
+        switch(action){
+            case('add'):
+            case('move'):
+            case('remove'):
+            	vm.resetScore();
+        }
+    }
+
+    getState(){
+        let vm = this;
+        vm.state = 'INTERMITTENT';
         vm.state = 'FINAL';
-        var candy = candy;
-        var found = false;
-        if(vm.isValidLocation(row, col)){
-            var found = vm.findCandy(candy);
-            if(!found)  {
-                vm.surface[row][col] = candy;
-                vm.candies.push(candy);
-                vm.sweep();
-                vm.boardModification('add', candy, row, col);
-                document.body.addEventListener("add", foo.func, {once:true})
-            } else return "Candy already on board";
-        } else return "Invalid location";
     }
 
     sweep(){
         let vm = this;
         for(var i = 0; i < this.row; i++){
             for(var j = 0; j < this.col; j++){
-                vm.checkMatchesHorizontal(vm.surface[i][j]);
-                vm.checkMatchesVertical(vm.surface[i][j]);
+                let continuousHorizontalLength = vm.checkMatchesHorizontal(vm.surface[i][j]);
+                if(continuousHorizontalLength > 2){
+
+                }
+                let continuousVerticalLength = vm.checkMatchesVertical(vm.surface[i][j]);
+                if(continuousVerticalLength > 2){
+                    
+                }
             }
         }
         if(vm.state == 'INTERMITTENT'){
@@ -134,78 +164,43 @@ class Board {
 
     checkMatchesHorizontal(candy){
         let vm = this;
-        if(candy.col == 0){
-
-        } else if(candy.col == vm.col){
-
-        }
+        if(!(candy.row > this.row - 3)){
+            let matchCount = 1;
+            let nextCandy = vm.surface[row][col+matchCount]
+            while(nextCandy && nextCandy.color == candy.color){
+                nextCandy = vm.getCandyAt(row, col+(++matchCount));
+            }
+            return matchCount;
+        }else "candy in second last or last column";
     }
 
     checkMatchesVertical(candy){
         let vm = this;
-        if(candy.row == 0){
-            
-        }else if (candy.row == vm.row){
-
-        } else {
-            //check whether there is enough space south with matching candy colors
-            if(vm.row - candy.row > 1){
-                if((vm.surface[candy.row - 1][] && vm.surface[candy.row + 1][]) ||
-                    vm.surface[candy.row + 1][] && vm.surface[candy.row + 2][] ||
-                    true
-                ) true;
+        if(!(candy.row > this.row - 3)){
+            let matchCount = 0;
+            let nextCandy = vm.surface[row][col+1]
+            while(nextCandy && nextCandy.color == candy.color){
+                matchCount++;
+                nextCandy = vm.surface[row][col+matchCount+1];
             }
-            // if just one space, just check with above
-            
-            // ...
-            
-            // then check three up with current cell as lowest
-
-            // ...
-
-            // then check for a possible fourth one
-
-            // ...
-            
-        }
+            return matchCount;
+        }else "candy in second last or last row";
     }
 
     checkAsFirstVertical(){
         let vm = this;
-        vm.checkFirstRowEdgeCase();
-        vm.checkSecondRowEdgeCase();
         vm.checkLastRowEdgeCase();
         vm.checkSecondLastRowEdgeCase();
         vm.checkRegularFirstVertical();
-    }
-
-    checkAsSecondVertical(){
-
-    }
-
-    checkAsThirdVertical(){
-
+        return length = 0;
     }
 
     checkAsFirstHorizontal(){
-        
-    }
-
-    checkAsFirstHorizontal(){
-
-    }
-
-    checkAsFirstHorizontal(){
-
-    }
-
-    boardModification(action, candy, row, col){
-        switch(action){
-            case('add'):
-            case('move'):
-            case('remove'):
-            	vm.resetScore();
-        }
+        let vm = this;
+        vm.checkLastRowEdgeCase();
+        vm.checkSecondLastRowEdgeCase();
+        vm.checkRegularFirstVertical();
+        return length = 0;
     }
 
 
@@ -289,10 +284,16 @@ class Board {
     * Returns the candy immediately in the direction specified ['up', 'down', 'left', 
     'right'] from the candy passed as fromCandy
     */
-    getCandyInDirection(fromCcandy, direction) {
+    getCandyInDirection(fromCandy, direction) {
         //Your code here
         let vm = this;
-        vm.get
+        switch(direction){
+            case('up'):
+
+            case('down'):
+            case('left'):
+            case('right'):
+        }
     }
 
 
