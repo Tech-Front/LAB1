@@ -1,0 +1,32 @@
+{
+    "name": "candy_crush",
+    "version": "0.0.1",
+    "description": "Candy Crush game built for the web using Javascript",
+    "main": "app.js",
+    "directories": {
+        "bin": "src",
+        "lib": "lib",
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "mocha",
+        "start": "node candy.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tonisheen/LAB1.git"
+    },
+    "keywords": [
+        "candy_crush",
+        "tech_front"
+    ],
+    "author": "Newton Migosi",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/tonisheen/LAB1/issues"
+    },
+    "homepage": "https://github.com/tonisheen/LAB1#readme",
+    "dependencies": {
+        "mocha": "^5.2.0"
+    }
+}
