@@ -1,14 +1,15 @@
 class Candy {
-    constructor(id, color) {
+    constructor(color,id) {
         this.row = null;
         this.column = null;
 
 
-        Object.defineProperty(this.id, {
+        Object.defineProperty(this, 'id', {
             writable: false,
             value: id
         });
-        Object.defineProperty(this.color, {
+
+        Object.defineProperty(this, 'color', {
             writable: false,
             value: color
         });
@@ -16,23 +17,19 @@ class Candy {
     }
 
 
-    /**
-     *Returns a string representation of the candy
-     */
-
     toString() {
         return `("Row: "+${this.row},"Column: "+ ${this.column}, "Id: "+${this.id},"color: "+ ${this.color})`;
     }
-    get row() {
+    getRow() {
         return this.row;
     }
-    set column(val) {
+    setColumn(val) {
         this.column = val;
     }
-    get column() {
+    getColumn() {
         return this.column;
     }
-    set row(val) {
+    setRow(val) {
         this.row = val;
     }
 

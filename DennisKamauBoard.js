@@ -1,14 +1,13 @@
 class Board {
     constructor(size) {
-        Object.defineProperty(this.size, {
+        Object.defineProperty(this,'size', {
             writable: false,
             value: size
         });
 
 
-        this.square = new Array(this.size);
-        this.board = new Array();
-        this.board.fill(this.square);
+        var board = new Array(size);
+        this.square = board.fill(new Array(size))
         this.score = 0;
         this.count = 0;
     }
@@ -18,29 +17,40 @@ class Board {
      */
     isValidLocation(row, col) {
         //Your code here
-        if (row >= 0 || row <= this.size - 1 && col >= 0 || col <= this.size - 1) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return (row >= 0 && col >= 0 && row < this.size && col < this.size 
+            && Math.round(row) == row && Math.round(col) == col)
+    
+
+        // if (row >= 0 && col >= 0 || row >= this.size - 1 && col > this.size ) {
+
+        //     return true;
+            
+        // } 
+        // else {
+        //     return false;
+        // }
     }
 
     /**
      * Returns a boolean indication of whether the board[row][column] is empty (Does not contain a candy.
      */
     isEmptyLocation(row, col) {
-        //Your code here
-        if (this.getCandyAt(row, col)) {
-            return false;
-        } else {
-            return true;
-        }
+        //Your code here1
+        return(this.square[row][col] == null  &&
+             typeof this.square[row][col] == 'undefined');
+
+        // if (this.getCandyAt(row, col)) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
     }
 
     /**
      *Returns the number of squares on each side of the board
      */
-    getBoardSize() {
+    getSize() {
         //Your code here
         return this.size;
     }
@@ -61,11 +71,11 @@ class Board {
      * Get the location of the candy (row, column) if it's on the board or null if it's not found.
      */
     getLocationOf(candy) {
-        //Your code here
-        if (this.isValidLocation(row, col)) {
-            return `("row: "+${candy.row},"column: "+${candy.col} )`;
-        } else {
-            return null;
+
+        if(candy.row == null && candy.col == null){
+            return null
+        }else {
+            return `("Row:" ${candy.row}, "column: " ${candy.col})`;
         }
     }
 
@@ -73,12 +83,20 @@ class Board {
      * Get a list of all candies on the board, in no particular order
      */
     getAllCandies() {
-        //Your code here
-        for (var i = 0, len = this.square.length; ++1) {
-            for (var j = 0, len2 = this.square[i].length; j < len2; j++) {
-
+       // Your code here
+        var allCandies =new Array();
+        for (var i = 0;i <= this.size; i++) {
+            for (var j = 0; j < this.square[i]; j++) {
+                allCandies.push(this.square[j]);
+                
             }
         }
+
+        return allCandies;
+
+ 
+
+
     }
 
 
@@ -91,6 +109,9 @@ class Board {
     add(candy, row, col, spawnRow, spawnCol) {
         //Your code here
         if(this.isEmptyLocation(row,col)){
+            this.square[row][col] = candy;
+            candy.row = row;
+            candy.col = col;
             var candyDetails = { candy: candy,fromRow: spawnRow,fromCol: spawnCol, toRow:row, toCol:col};
 
         }
@@ -105,11 +126,24 @@ class Board {
      * details on the candy, toRow, fromRow, toCol, fromCol. */
     moveTo(candy, toRow, toCol) {
         //Your code here
-        if(this.getLocationOf(candy) && this.isEmptyLocation(toRow,toCol)){
-            var candyDetails = {candy:candy, toRow: row, toCol: col ,fromRow: candy.row, fromCol: candy.col}
+        if (this.isEmptyLocation(toRow, toCol) && this.getLocationOf(candy)) {
+            var candyDetails = {
+                candy: candy,
+                toRow: toRow,
+                toCol: toCol,
+                fromRow: candy.row,
+                fromCol: candy.col
+            }
+            
+            delete this.square[candy.row][candy.col]
+            this.square[toRow][toCol] = candy;
+            candy.row = toRow
+            candy.col = toCol
+            let moveEvent = new Event("move", {"details": candyDetails });
+            document.dispatchEvent(moveEvent);
+            
         }
-        let moveEvent = new Event("move", {"details": candyDetails});
-        document.dispatchEvent(moveEvent);
+
     }
 
     /**
@@ -120,6 +154,7 @@ class Board {
         //Your code here
         if(this.getLocationOf(candy)){
             var candyDetails = {candy:candy,fromRow:candy.row,fromCol:candy.col}
+            delete this.square[candy.row][candy.col]
         }
         let removeEvent = new Event("remove",{"details":candyDetails});
         document.dispatchEvent(removeEvent);
