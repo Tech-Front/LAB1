@@ -7,14 +7,14 @@ class Candy{
      * @param {String} color of candy
      * @param {String} uniqueID representing candy
      */
-    constructor(color,uniqueID){
+    constructor(color,id){
         //Immutable fields
         Object.defineProperty(this,"color",{
             value:color,
             writable: false
         });
-        Object.defineProperty(this, "uniqueID", {
-            value: uniqueID,
+        Object.defineProperty(this, "id", {
+            value: id,
             writable: false
         });
 
@@ -44,7 +44,7 @@ class Candy{
      * @returns {String} representation of the Candy
      */
     toString(){
-        return ("UniqueID: "+this.uniqueID+" Color: "+this.color+
+        return ("ID: "+this.id+" Color: "+this.color+
     "\nPosition-> row: "+this.row+" column: "+this.col );
     }
 }

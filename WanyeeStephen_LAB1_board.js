@@ -43,7 +43,7 @@ class Board{
     */
     isValidLocation(row, col) {
         return (row >= 0 && col >= 0 &&
-            row <= this.boardSize && col <= this.boardSize &&
+            row < this.boardSize && col < this.boardSize &&
             Number.isInteger(row) && Number.isInteger(col));  
     }
 
@@ -63,7 +63,7 @@ class Board{
     /**
     * @returns {Number} number of squares on each side
     */
-   getBoardSize(){
+   getSize(){
        return this.boardSize;
    }
 
@@ -74,7 +74,11 @@ class Board{
     */
     getCandyAt(row, col) {
         if (this.isValidLocation(row, col)) {
-            return this.square[row][col];
+            if(this.square[row][col]){
+                return this.square[row][col];
+            }else{
+                return null;
+            }
         }
     } 
     
@@ -83,7 +87,11 @@ class Board{
      * @returns {Object} position of candy (row,column) | null if not found
      */
     getLocationOf(candy){
-        return {row:candy.row,col:candy.col};
+        if(candy.row && candy.col){
+            return { row: candy.row, col: candy.col };
+        }else{
+            return null;
+        }
     }
 
     /**
@@ -358,7 +366,7 @@ class Board{
 
     /**
     * Returns a string representation of the board
-    *  c represents candy and ~ represents empty square
+    *  first letter of its color represents candy and ~ represents empty square
     * @returns {String} representation of the board
     */
     toString() {
@@ -369,7 +377,7 @@ class Board{
             for(let col = 0; col < size; ++col){
                 var candy = this.square[row][col];
                 if(candy){
-                    representation += "c ";
+                    representation += candy.color.charAt(0)+" ";
                 }else{
                     representation += "~ ";
                 }
@@ -378,5 +386,5 @@ class Board{
         }
                
         return representation;
-    }    
+    }     
 }
