@@ -6,7 +6,7 @@
 class Board {
   /**
    *Creates an instance of Board.
-   * @param {*} size
+   * @param {number} size
    * @memberof Board
    */
   constructor(size) {
@@ -15,32 +15,30 @@ class Board {
       writeable: false,
     });
 
-    // Create a new grid array and fill it with the cells
+    /**
+     * 
+     * Create a new grid array and fill it with the cells
+     */
     this.grid = new Array(this.boardSize).fill(new Array(this.boardSize));
     this.score = 0;
 
   }
   /**
    *Returns a boolean indication of whether the row and column identify a valid square on the board.
-   */
-  /**
    *
    *
-   * @param {*} row
-   * @param {*} col
+   * @param {number} row
+   * @param {number} col
    * @returns
    * @memberof Board
    */
   isValidLocation(row, col) {
-    //Your code here
     return row >= 0 && row === Math.round(row) && row <= this.boardSize &&
       col >= 0 && col === Math.round(col) && col <= this.boardSize;
   }
 
   /**
    * Returns a boolean indication of whether the board[row][column] is empty (Does not contain a candy.
-   */
-  /**
    *
    *
    * @param {*} row
@@ -73,8 +71,6 @@ class Board {
 
   /**
    * Get's the candy at [row, column] or null if the square is empty.
-   */
-  /**
    *
    *
    * @param {*} row
@@ -97,16 +93,13 @@ class Board {
 
   /**
    * Get the location of the candy (row, column) if it's on the board or null if it's not found.
-   */
-  /**
    *
    *
-   * @param {*} candy
+   * @param {string} candy
    * @returns
    * @memberof Board
    */
   getLocationOf(candy) {
-    //Your code here
     if (this.isValidLocation(candy.row, candy.col)) {
       return this.getCandyAt(candy.row, candy.col);
     } else {
@@ -119,15 +112,17 @@ class Board {
 
   /**
    * Get a list of all candies on the board, in no particular order
-   */
-  /**
    *
    *
    * @memberof Board
    */
   getAllCandies() {
-    //Your code here
-    let grid = this.grid.flat;
+    for (var i = 0; i < this.grid.length; i++) {
+      var grid = this.grid[i];
+      for (var j = 0; j < grid.length; j++) {
+        return grid[i][j];
+      }
+    }
   }
 
 
@@ -136,15 +131,13 @@ class Board {
    * be a valid empty square. The optional spawnRow and spawnCol indicate where the candy was "spawned"
    * the moment before it moved to row,col. This location which may be off the board, is added to the "add"
    * event and can be used to animate new candies that are coming in from  offBoard.
-   * Dispaches a new "add" event with details containing the candy, fromRow, fromCol, toRow and toCol */
-  /**
+   * Dispaches a new "add" event with details containing the candy, fromRow, fromCol, toRow and toCol
    *
-   *
-   * @param {*} candy
-   * @param {*} row
-   * @param {*} col
-   * @param {*} spawnRow
-   * @param {*} spawnCol
+   * @param {string} candy
+   * @param {number} row
+   * @param {number} col
+   * @param {number} spawnRow
+   * @param {number} spawnCol
    * @memberof Board
    */
   add(candy, row, col, spawnRow, spawnCol) {
@@ -173,40 +166,36 @@ class Board {
   /**
    * moves a candy from it's square to another square. Requires that this candy be found on this board and
    *  (toRow, toCol) must denote a valid empty spot on the board. Dispatches a new  "move" event with
-   * details on the candy, toRow, fromRow, toCol, fromCol. */
-  /**
+   * details on the candy, toRow, fromRow, toCol, fromCol.
    *
    *
-   * @param {*} candy
-   * @param {*} toRow
-   * @param {*} toCol
+   * @param {string} candy
+   * @param {number} toRow
+   * @param {number} toCol
    * @returns
    * @memberof Board
    */
   moveTo(candy, toRow, toCol) {
-    //Your code here
-
-    return candy.setRow(toRow);
-    return candy.setCol(toCol);
-    return this.isEmptyLocation(candy.col, candy.row);
-    const moveCandy = new CustomEvent('moveCandy', {
-      detail: {
-        candy: candy,
-        toRow: toRow,
-        toCol: toCol,
-        fromCol: candy.col,
-        fromRow: candy.row
+    if (this.isValidLocation(candy.row, candy.col)) {
+      if (this.isEmptyLocation(toRow, toCol)) {
+        delete this.grid[candy.row][candy.col];
+        var moveTo = new CustomEvent('moveTo', {
+          detail: {
+            candy: candy,
+            fromRow: candy.row,
+            fromCol: candy.col,
+            toCol: toCol,
+            toRow: toRow
+          }
+        });
+        document.dispatchEvent(moveTo);
       }
-    })
-
-    document.dispatchEvent(moveCandy)
+    }
   }
 
   /**
    * Removes a candy from this board. Requires that candy be found on this board. Dispatches a new
    * "remove" event with details on the candy, fromRow, fromCol.
-   */
-  /**
    *
    *
    * @param {*} candy
@@ -214,13 +203,15 @@ class Board {
    * @memberof Board
    */
   remove(candy) {
-    //Your code here
-    return this.isEmptyLocation(candy.row, candy.col);
-    if (this.isValidLocation()) {
-      const removeCandy = new CustomEvent('removeCandy', function () {
-        let postition = this.grid.indexOf(candy);
-        let remove = this.grid.splice(postition, 1);
-        return remove;
+    if(this.isValidLocation(candy.row, candy.col)){
+      delete this.grid[candy.row][candy.col];
+      return this.isEmptyLocation(candy.row, candy.col);
+      var removeCandy = new CustomEvent('removeCandy', {
+        detail: {
+          candy: candy,
+          fromRow: candy.row,
+          fromCol: candy.col
+        }
       })
       document.dispatchEvent(removeCandy);
     }
@@ -229,8 +220,7 @@ class Board {
 
 
   /**
-   * Reomves candy at given location from this board. Requires that candy be found on this board. */
-  /**
+   * Reomves candy at given location from this board. Requires that candy be found on this board.
    *
    *
    * @param {*} row
@@ -238,16 +228,10 @@ class Board {
    * @memberof Board
    */
   removeAt(row, col) {
-    //Your code here
-    if (this.isValidLocation(row, col)) {
-      let event = new Event('removeAt')
-      this.addEventListener('removeAt', function () {
-        let candy = this.grid[row][col];
-        return this.grid.splice(candy, 1);
-        return this.isEmptyLocation(row, col);
-      }, true)
+    if(this.isValidLocation(row, col)){
+      let candy = this.grid[row][col];
+      this.remove(candy);
     }
-    this.dispatchEvent(event);
   }
 
 
