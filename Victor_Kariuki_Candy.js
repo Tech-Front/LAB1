@@ -1,14 +1,14 @@
 class Candy {
-    constructor(colour, uid) {
-        Object.defineProperty(this.uid, {
-            value: uid,
-            writeable: false,
-            configurable: false
+    constructor(color, id) {
+        Object.defineProperty(this, 'id', {
+            value: id,
+            writable: false
+
         })
-        Object.defineProperty(this.colour, {
-            value: colour,
-            writeable: false,
-            configurable: false
+        Object.defineProperty(this, 'color', {
+            value: color,
+            writable: false
+
         })
 
         this.row = null;
@@ -17,29 +17,29 @@ class Candy {
 
 
     // Getters for the row and column
-    get row() {
+    getRow() {
         return this.row;
     }
 
-    set row(row_pos) {
+    setRow(row_pos) {
         return this.row = row_pos;
     }
 
-    get col() {
+    getCol() {
         return this.col;
     }
 
     // Setters for the row and column
-    set col(col_pos) {
+    setCol(col_pos) {
         return this.col = col_pos;
     }
 
     // Returns a string representation of the candy
 
     toString() {
-        return `Unique ID: ${this.uid}, Colour: ${this.colour}, Row: ${this.row}, Col: ${this.row}`;
+        return `Unique ID: ${this.id}, colors: ${this.color}, Row: ${this.row}, Col: ${this.row}`;
     }
 }
 
 // Colour List 
-Candy.colours = ["red", "yellow", "green", "orange", "blue", "purple"];
+Candy.colors = ["red", "yellow", "green", "orange", "blue", "purple"];
