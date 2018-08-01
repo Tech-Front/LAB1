@@ -1,7 +1,7 @@
 # LAB1
 ## Due Thursday July 19, 2018 at 2100Hrs
  
-## Part 1s
+## Part 1
 
 ## Instructions 
 The main goal of this first lab is to get you ramped up with Javascript, by building 
