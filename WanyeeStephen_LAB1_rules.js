@@ -26,7 +26,7 @@ class Rules {
     *
     */
     isMoveTypeValid(fromCandy, direction) {
-        this.numberCandiesCrushedByMove(fromCandy,direction) > 0;
+       return this.numberCandiesCrushedByMove(fromCandy,direction) > 0;
     }
 
     /**
@@ -38,63 +38,57 @@ class Rules {
      * @returns {Array} array of crushable candies
      */
     getCandyCrushes() {
-        //
-        var parentCandy = {};
-        var sizes = {};
-
-        function find(candy){
-            var parent = parentCandy[candy];
-            if(parent == null) return candy;
-            parent = find(parent);
-            parentCandy[candy] = parent; //Path compression; make all candies point to root 
-            return parent;
-        }
-        
-        function size(someSet) {
-            return sizes[someSet] || 1;
-        }
-
-        function union(candy1,candy2){
-            //get parents
-            var parent1 = find(candy1);
-            var parent2 = find(candy2);
-
-            if(parent1 == parent2) return parent1;
-
-            parentCandy[parent2] = parent1;
-            sizes[parent1] = size(parent1) + size(parent2);
-            delete size[parent2];
-        }
-
-        var allMatches = this.getMatchingStrips();
-        // Utilising the disjoint set algorithm to unionize the sets
-        for (var j = 0; j < allMatches.length; j++) {
-            var set = allMatches[j];
-            for (var k = 1; k < set.length; k++) {
-                union(set[0].id, set[k].id)
-            }
-        }
-        //Get the list of lists
-        var results = {}
-        for (let row = 0; row < board.boardSize; row++) {
-            for (let col = 0; col < board.boardSize; col++) {
-                var candy = board.getCandyAt(row, col);
-                if (candy) {
-                    var parent = find(candy.id);
-                    if (size(parent) >= 3) {
-                        if (!(parent in results)) results[parent] = [];
-                        results[parent].push(candy);
+        //Utility functions for removing intersects
+        function someMatch(list1,list2){
+            var someMatch = false;
+            for(let i = 0; i < list1.length && !someMatch; i++){
+                var e1 = list1[i];
+                for (let j = 0; j < list2.length && !someMatch; j++){
+                    var e2 = list2[j];
+                    if(e1 == e2){
+                        someMatch = true;
+                        break;
                     }
                 }
             }
-        }
-        // Make the matches to be in a list of lists
-        var crushableCandies = [];
-        for (var key in results) {
-            crushableCandies.push(results[key]);
+            return someMatch;
         }
 
-        return crushableCandies;
+        function mergeMatch(list1,list2){
+                var result_array = [];
+                var arr = list1.concat(list2);
+                var len = arr.length;
+                var assoc = {};
+
+                for(let i = 0; i < len; i++){
+                    let item = arr[i];
+
+                    if(!assoc[item]){
+                        result_array.unshift(item);
+                        assoc[item] = true;
+                    }
+                }
+                return result_array;
+        }
+
+        var allMatches = this.getMatchingStrips();
+
+        //Check for intersects
+        for (var j = 0; j < allMatches.length; j++) {
+            var set = allMatches[j];
+            var setNext = null;
+            if(j+1 < allMatches.length){
+                setNext = allMatches[j + 1];
+            }
+
+            //compare and merge
+            if(setNext && someMatch(set,setNext)){
+                allMatches.push(mergeMatch(set,setNext));
+                allMatches.splice(j,2);
+            }
+
+        }
+        return allMatches;
     }
 
     /** 
@@ -119,7 +113,30 @@ class Rules {
     *   events. If there are holes created by moving the candies down, populates the board with new random candies
     */
     moveCandiesDown() {
-        
+        for(let col = 0; col < this.board.getSize(); col++){
+            //Get lowest empty row
+            var lowestEmptyRow = null;
+
+            for (let row = 0; row < this.board.getSize(); row++) {
+                var candy = this.board.getCandyAt(row,col);
+                if(!candy) lowestEmptyRow = row;
+                break;
+            }
+        }
+
+        //Move candies down 
+        for(var row=lowestEmptyRow; row >= 0; row--){
+            var candy = this.board.getCandyAt(row, col);
+            if(candy){
+                this.board.moveTo(candy, lowestEmptyRow, col);
+                lowestEmptyRow--;
+            } 
+        }
+
+        //if there are any remaining empty rows, add random candies
+        for(; lowestEmptyRow >= 0; lowestEmptyRow--){
+            this.board.addRandomCandy(lowestEmptyRow,col,-1,col);
+        }        
     }
 
     /**
@@ -132,7 +149,7 @@ class Rules {
     getCandiesToCrushGivenMove(fromCandy, direction) {
         var flipCandy = this.board.getCandyInDirection(fromCandy,direction);
 
-        //For candie edges and same color candies
+        //For candy edges and same color candies
         if(!flipCandy || flipCandy.color == fromCandy.color ) return [];
 
         //temporarily flip the candies
@@ -141,10 +158,10 @@ class Rules {
             var fromCol = candy1.col;
             var toRow = candy2.row;
             var toCol = candy2.col;
-            this.board.square[toRow][toCol] = candy1;
+            board.square[toRow][toCol] = candy1;
             candy1.row = toRow
             candy1.col = toCol;
-            this.board.square[fromRow][fromCol] = candy2;
+            board.square[fromRow][fromCol] = candy2;
             candy2.row = fromRow
             candy2.col = fromCol;
         }
@@ -152,14 +169,8 @@ class Rules {
         var crushes = this.getCandyCrushes();
         swap(flipCandy, fromCandy);
 
-        //As a precaution, filter out the crushes that relate to the move
-        var filteredCrushes = crushes.filter(set => {
-            var moveCandies = [fromCandy,flipCandy];
-            moveCandies.forEach(element => {
-                return set.includes(element);
-            });
-        });
-        return filteredCrushes;
+        
+        return crushes;
     }
 
     /**
@@ -178,52 +189,52 @@ class Rules {
 
     */
 
+    /** 
+    *If there is a valid move on the board, returns an object with two properties: candy: a candy that can be moved 
+    *and direction: the direction to be moved. If there are no valid moves, returns null. The move is selected 
+    *randomly from available moves. 
+    * @returns {Object | null} Object | null
+    */
+    getRandomValidMove() {
+
+
+
+
+
+
+
+    }
+
     /**
      * @returns {Array} list of all matching candies
      */
     getMatchingStrips() {
         var allMatches = [];
 
-        //Get matching candies in a row 
-       for(let row=0; row<this.board.getSize(); row++){
-           for(let next,col= 0; col<this.board.getSize(); col = next){
-               var candies = [];
-                var candy = this.board.getCandyAt(row,col);
-                next = col+1;
-                if(!candy)continue;
-                candies.push(candy);
+        function getRow(index,board){
+            return board.square[index];
+        }
 
-                while(next < this.board.getSize()){
-                    var candyNext = this.board.getCandyAt(row,next);
+        function getColumn(index,board) {
+            var column = [];
+            board.square.forEach(element => {
+                column.push(element[index]);
+            });
+            return column;
+        }
 
-                    if(candy.color == candyNext.color){
-                        candies.push(candyNext);
-                        next++;
-                    }else{
-                        break;
-                    }
-                }
-               if (candies.length > 2) {
-                   allMatches.push(candies);
-               }
-           }           
-       }
-
-        //Get matching candies in a column
-        for (let col = 0; col < this.board.getSize(); col++) {
-            for (let next, row = 0; row < this.board.getSize(); row = next) {
+        function checkMatchingStrips(someSet) {
+            for (let y = 0; y < someSet.length; y++) {
                 var candies = [];
-                var candy = this.board.getCandyAt(row, col);
-                next = row + 1;
-                if (!candy) continue;
+                var candy = someSet[y];
                 candies.push(candy);
 
-                while (next < this.board.getSize()) {
-                    var candyNext = this.board.getCandyAt(next, col);
+                while (y + 1 < someSet.length) {
+                    var candyNext = someSet[y+1];
 
                     if (candy.color == candyNext.color) {
                         candies.push(candyNext);
-                        next++;
+                        y++;
                     } else {
                         break;
                     }
@@ -231,7 +242,17 @@ class Rules {
                 if (candies.length > 2) {
                     allMatches.push(candies);
                 }
-            }            
+            }
+        }
+        
+        //Get matching candies in a row
+        for (let row = 0; row < this.board.getSize(); row++) {
+            checkMatchingStrips(getRow(row, this.board));
+        }
+
+        //Get matching candies in a column
+        for (let col = 0; col < this.board.getSize(); col++) {
+            checkMatchingStrips(getColumn(col, this.board))
         }
         
         return allMatches;
@@ -244,7 +265,7 @@ class Rules {
         for (var row = 0; row < this.board.getSize(); ++row) {
             for (var col = 0; col < this.board.getSize(); ++col) {
                 if (this.board.isEmptyLocation(row, col)) {
-                    this.board.addRandomCandy(row, col);
+                    this.board.addRandomCandy(row, col, -1, -1);
                 }
             }
         }
@@ -258,10 +279,11 @@ class Rules {
         this.board.score = 0;
         this.scoring = false;
 
-        while(true){
+        var crushesPresent = true;
+        while(crushesPresent){
             this.populateBoard();
             var crushesList = this.getCandyCrushes();
-            if(crushesList.length == 0) break;
+            if(crushesList.length == 0) crushesPresent = false;
             this.removeCrushes(crushesList);
         }
         this.scoring = true;        
@@ -269,10 +291,8 @@ class Rules {
 
 }
 
-var board = new Board(6);
-var rules = new Rules(board);
+var B = new Board(5);
+var rules = new Rules(B);
 
 rules.prepareNewGame();
 console.log(rules.board.toString());
-
-console.log(rules.getCandyCrushes());

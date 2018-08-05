@@ -377,7 +377,7 @@ class Board{
             for(let col = 0; col < size; ++col){
                 var candy = this.square[row][col];
                 if(candy){
-                    representation += candy.color.charAt(0)+" ";
+                    representation += candy.color.charAt(0).toUpperCase()+" ";
                 }else{
                     representation += "~ ";
                 }
