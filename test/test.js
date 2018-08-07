@@ -168,3 +168,16 @@ describe('Test remove', function () {
         expect(newBoard.isEmptyLocation(1, 2)).to.be(true)
     });
 });
+
+// Test getCandyCrushes
+
+describe('Test getCandyCrushes', function (){
+    it('Should return a list of all candies', function (){
+        var newBoard = new Board(5);
+        var newCandy = new Candy("red", 3);
+        newBoard.add(newCandy, 1,2,-1,-1)
+        //newBoard.getCandyCrushes()
+        var expected = new Array();
+        expect(newBoard.getCandyCrushes()).to.eql(expected);
+    })
+} )

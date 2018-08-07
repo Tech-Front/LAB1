@@ -41,7 +41,7 @@ class Rules {
         var allCandyCrushes = new Array()
         // The candies must be 3 of the same color
         var tempArray = new Array()
-        var position = 0;
+        var position = 0
         for ( let row=0; row < this.Board.length; row++){
             // Get the color of the candy at that point
             // Evaluate if the next Candy is of the same color
@@ -52,15 +52,14 @@ class Rules {
              for (let i = 0; i < this.Board.length; i++){
                 while(i< this.Board.length){
                 if (this.Board[row][col].color == this.Board[row][col + 1]) { 
-                    // loop throug the column
-                    
-                     tempArray.push()
-                    
+                    position = i
+                    tempArray.push(i[row][col])
                  }
                 }
              }
-          
+             allCandyCrushes.push(tempArray);   
     }
+
 
     
 
