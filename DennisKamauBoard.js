@@ -129,10 +129,10 @@ class Board {
         if (this.isEmptyLocation(toRow, toCol) && this.getLocationOf(candy)) {
             var candyDetails = {
                 candy: candy,
-                toRow: toRow,
-                toCol: toCol,
                 fromRow: candy.row,
-                fromCol: candy.col
+                fromCol: candy.col,
+                toRow: toRow,
+                toCol: toCol
             }
             
             delete this.square[candy.row][candy.col]
@@ -174,7 +174,7 @@ class Board {
      */
     clear() {
         //Your code here
-        this.board.length = 0;
+        this.square.length = 0;
     }
 
     /**

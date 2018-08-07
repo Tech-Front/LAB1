@@ -32,6 +32,7 @@ class Candy {
     setRow(val) {
         this.row = val;
     }
+    getColor(){}
 
 }
 Candy.colors = ["red", "yellow", "green", "orange", "blue", "purple"];
