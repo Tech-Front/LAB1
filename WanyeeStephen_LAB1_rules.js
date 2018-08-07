@@ -153,7 +153,7 @@ class Rules {
         if(!flipCandy || flipCandy.color == fromCandy.color ) return [];
 
         //temporarily flip the candies
-        function swap(candy1,candy2){
+        function swap(candy1,candy2,board){
             var fromRow = candy1.row;
             var fromCol = candy1.col;
             var toRow = candy2.row;
@@ -165,9 +165,9 @@ class Rules {
             candy2.row = fromRow
             candy2.col = fromCol;
         }
-        swap(fromCandy,flipCandy);
+        swap(fromCandy,flipCandy,this.board);
         var crushes = this.getCandyCrushes();
-        swap(flipCandy, fromCandy);
+        swap(flipCandy, fromCandy,this.board);
 
         
         return crushes;
@@ -196,13 +196,36 @@ class Rules {
     * @returns {Object | null} Object | null
     */
     getRandomValidMove() {
+        //Have to check for every candy, valid moves
+        var directions = ['up','down','right','left'];
+        var validNormal = [];
+        var validExtra = [];
 
+        this.board.square.forEach(element => {
+            element.forEach(candy =>{
+                for (let i = 0; i < directions.length; i++) {
+                    if (this.isMoveTypeValid(candy, directions[i]) ){
+                        var crushes = this.getCandiesToCrushGivenMove(candy,directions[i])[0];
 
+                        if(crushes.length == 3){
+                            validNormal.push({candy:candy,direction:directions[i]});
+                        } else if (crushes.length > 3){
+                            validExtra.push({ candy: candy, direction: directions[i] });
+                        }
+                    }
+                }
+            });            
+        });
 
-
-
-
-
+        if(!validExtra || !validNormal){
+            return null;
+        }else if(validExtra.length > 0){
+            //pick a random validExtra
+            return validExtra[Math.floor(Math.random()*validExtra.length)];
+        }else{
+            //pick a random validNormal
+            return validNormal[Math.floor(Math.random() * validNormal.length)];
+        }
     }
 
     /**
@@ -290,9 +313,3 @@ class Rules {
     }
 
 }
-
-var B = new Board(5);
-var rules = new Rules(B);
-
-rules.prepareNewGame();
-console.log(rules.board.toString());
